@@ -359,6 +359,21 @@ return [
             ],
         ],
         [
+            'text' => 'Horario laboral',
+            'url' => '',
+            'icon' => 'fas fa-fw fa-user',
+            'submenu' => [
+                [
+                    'text' => 'Crear horario',
+                    'url' => 'horarios_laborales\create', 
+                ],
+                [
+                    'text' => 'Listado de horarios', 
+                    'url' =>'horarios_laborales\index',
+                ],
+            ],
+        ],
+        [
             'text' => 'multilevel',
             'icon' => 'fas fa-fw fa-share',
             'submenu' => [

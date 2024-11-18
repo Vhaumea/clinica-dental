@@ -52,7 +52,7 @@ class PacienteController extends Controller
             'direccion' => $request->direccion,
         ]);
 
-        return redirect()->route('pacientes.listar')->with(['message' => 'Paciente creado con exito']);
+        return redirect()->route('pacientes.index')->with(['message' => 'Paciente creado con exito']);
     }
     public function index()
     {
@@ -60,12 +60,20 @@ class PacienteController extends Controller
         $pacientes = Pacientes::all();
 
         // Retornar la vista con los pacientes
-        return view('pacientes\listar', compact('pacientes'));
+        return view('pacientes\index', compact('pacientes'));
     }
-    public function edit(Pacientes $paciente)
+
+
+    public function edit($id, Request $request)
     {
-        return view('pacientes.create', compact('paciente'));
+        // Obtener el paciente por ID
+        $paciente = Pacientes::find($id);
+        // Determinar el modo (ver o editar)
+        $modo = $request->query('modo', 'ver'); // Por defecto es 'ver'
+        // Retornar la vista con los datos del usuario
+        return view('pacientes.edit', compact('paciente', 'modo'));
     }
+
     public function update(Request $request, $id)
     {
         // Validación y actualización del paciente
@@ -82,7 +90,7 @@ class PacienteController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
         // Asignar nuevos valores al objeto del paciente
-        
+
         $pacientes->email = $request->input('email');
         $pacientes->telefono = $request->input('telefono');
         $pacientes->direccion = $request->input('direccion');

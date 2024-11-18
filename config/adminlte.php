@@ -311,27 +311,17 @@ return [
         ],
 
         // Sidebar items:
-        [
-            'type' => 'sidebar-menu-search',
-            'text' => 'search',
-        ],
+        
         [
             'text' => 'blog',
             'url' => 'admin/blog',
             'can' => 'manage-blog',
         ],
-        [
-            'text' => 'presupuestos',
-            'url' => 'admin/presupuesto',
-            'icon' => 'far fa-fw fa-file',
-            'label' => 4,
-            'label_color' => 'success',
-        ],
-        ['header' => 'account_settings'],
+        ['header' => 'USUARIOS'],
         [
             'text' => 'Usuarios',
             'url' => 'users\usuarios',
-            'icon' => 'fas fa-fw fa-user',
+            'icon' => 'fas fa-users',
             'submenu' => [
                 [
                     'text' => 'Crear usuarios',
@@ -344,24 +334,9 @@ return [
             ],
         ],
         [
-            'text' => 'Pacientes',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-user',
-            'submenu' => [
-                [
-                    'text' => 'Crear Paciente',
-                    'url' => 'pacientes\crear',
-                ],
-                [
-                    'text' => 'Listado de pacientes',
-                    'url' => 'pacientes\listar',
-                ],
-            ],
-        ],
-        [
             'text' => 'Horario laboral',
             'url' => '',
-            'icon' => 'fas fa-fw fa-user',
+            'icon' => 'fas fa-clock',
             'submenu' => [
                 [
                     'text' => 'Crear horario',
@@ -373,45 +348,71 @@ return [
                 ],
             ],
         ],
+        ['header' => 'PACIENTES'],
         [
-            'text' => 'multilevel',
-            'icon' => 'fas fa-fw fa-share',
+            'text' => 'Pacientes',
+            'url' => 'admin/settings',
+            'icon' => 'fas fa-user-injured',
             'submenu' => [
                 [
-                    'text' => 'level_one',
-                    'url' => '#',
+                    'text' => 'Crear Paciente',
+                    'url' => 'pacientes\crear',
                 ],
                 [
-                    'text' => 'level_one',
-                    'url' => '#',
-                    'submenu' => [
-                        [
-                            'text' => 'level_two',
-                            'url' => '#',
-                        ],
-                        [
-                            'text' => 'level_two',
-                            'url' => '#',
-                            'submenu' => [
-                                [
-                                    'text' => 'level_three',
-                                    'url' => '#',
-                                ],
-                                [
-                                    'text' => 'level_three',
-                                    'url' => '#',
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
+                    'text' => 'Listado de pacientes',
+                    'url' => 'pacientes\index',
                 ],
             ],
         ],
+      
+        [
+            'text' => 'Citas',
+            'icon' => 'far fa-calendar-alt', // Icono opcional
+            'submenu' => [
+                [
+                    'text' => 'Agendar Cita',
+                    'url'  => 'citas/create', // Ruta para crear cita
+                ],
+                [
+                    'text' => 'Listado de Citas',
+                    'url'  => 'citas', // Ruta para listar citas
+                ],
+            ],
+        ],
+        [
+            'text' => 'Presupuestos',
+            'icon' => 'fas fa-file-invoice', // Icono opcional
+            'submenu' => [
+                [
+                    'text' => 'Crear Presupuesto',
+                    'url'  => 'presupuestos/create', // Ruta para crear presupuesto
+                ],
+                [
+                    'text' => 'Listardo de Presupuestos',
+                    'url'  => 'presupuestos', // Ruta para listar presupuestos
+                ],
+            ],
+        ],
+          
+        
+        
         ['header' => 'labels'],
+        [
+            'text' => 'Piezas Dentales',
+            'icon' => 'fas fa-tooth', // Puedes elegir un ícono apropiado de Font Awesome
+            'submenu' => [
+                [
+                    'text' => 'Crear Pieza Dental',
+                    'url'  => 'pieza_dental/create', // Asegúrate de que esta ruta esté definida
+                    'icon' => 'fas fa-plus-circle',
+                ],
+                [
+                    'text' => 'Listar Piezas Dentales',
+                    'url'  => 'pieza_dental', // Asegúrate de que esta ruta esté definida
+                    'icon' => 'fas fa-list',
+                ],
+            ],
+        ],
         [
             'text' => 'important',
             'icon_color' => 'red',

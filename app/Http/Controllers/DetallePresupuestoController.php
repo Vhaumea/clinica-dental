@@ -3,39 +3,52 @@
 namespace App\Http\Controllers;
 
 use App\Models\DetallePresupuesto;
+use App\Models\Presupuesto;
 use Illuminate\Http\Request;
 
 class DetallePresupuestoController extends Controller
 {
+    /**
+     * Almacena un nuevo detalle de presupuesto.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+
+
+
+    public function create()
+    {
+       
+        // Retornar la vista con los datos del presupuesto
+        return view('presupuestos.create', compact('detalles','presupuestos'));
+    }
 
     public function store(Request $request)
     {
-        // Validar los datos recibidos
-        $validatedData = $request->validate([
-            'pieza_id.*' => 'required|string|max:255',
-            'tratamiento.*' => 'required|string|max:255',
-            'observaciones.*' => 'nullable|string|max:255',
-            'precio.*' => 'required|numeric|min:0',
+        // Valida los datos del detalle del presupuesto
+        $request->validate([
+            'presupuesto_id' => 'required|exists:presupuesto,id',
+            'pieza' => 'required|string|max:10',
+            'tratamiento' => 'required|string|max:1000',
+            'observaciones' => 'required|string|max:1000',
+            'precio' => 'required|numeric',
         ]);
 
-        // Guardar los detalles en la base de datos
-        foreach ($validatedData['pieza_id'] as $index => $pieza) {
-            DetallePresupuesto::create([
-                'pieza_id' => $pieza,
-                'tratamiento' => $validatedData['tratamiento'][$index],
-                'observaciones' => $validatedData['observaciones'][$index] ?? null,
-                'precio' => $validatedData['precio'][$index],
-            ]);
-        }
+        // Crea el nuevo detalle de presupuesto
+        $detalle = DetallePresupuesto::create($request->all());
 
-        // Retornar una respuesta JSON con los datos guardados
-        return response()->json(['success' => true, 'message' => 'Detalles guardados con éxito']);
-    }
+        // Actualizar el total del presupuesto asociado
+        $presupuesto = Presupuesto::find($detalle->presupuesto_id);
 
-    public function index()
-    {
-        // Obtener todos los detalles de presupuesto para mostrarlos en la vista
-        $detalles = DetallePresupuesto::all();
-        return response()->json($detalles);
+        // Recalcular el total final
+        $subtotal = DetallePresupuesto::where('presupuesto_id', $detalle->presupuesto_id)->sum('precio');
+
+        // Actualizar el campo subtotal en el presupuesto
+        $presupuesto->subtotal = $subtotal;
+        $presupuesto->save();
+
+        // Redirige a la vista de creación con un mensaje de éxito
+        return redirect()->route('presupuestos.create')->with('success', 'Detalle agregado con éxito.');
     }
 }

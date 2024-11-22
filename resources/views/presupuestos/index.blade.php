@@ -6,10 +6,11 @@
 <div class="container">
     @include('includes.message')
     <div class="card">
-        <div class="card-header">
-            <h3>{{ __('Presupuestos') }}</h3>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>{{ __('Listado de Presupuestos') }}</span>
             <a href="{{ route('presupuestos.create') }}" class="btn btn-success btn-sm">Crear Presupuesto</a>
         </div>
+
         <div class="card-body">
             <table class="table table-bordered">
                 <thead>
@@ -26,34 +27,44 @@
                 </thead>
                 <tbody>
                     @foreach($presupuestos as $presupuesto)
-                        <tr>
-                            <td>{{ $presupuesto->id }}</td>
-                            <td>{{ $presupuesto->paciente->nombre }} {{ $presupuesto->paciente->apellido_p }} {{ $presupuesto->paciente->apellido_m }}</td>
-                            <td>{{ $presupuesto->subtotal }}</td>
-                            <td>{{ $presupuesto->descuento }}</td>
-                            <td>{{ $presupuesto->total_final }}</td>
-                            <td>{{ $presupuesto->saldo_pendiente }}</td>
-                            <td>{{ $presupuesto->estado }}</td>
-                            <td>
-                                <a href="{{ route('presupuestos.edit', $presupuesto->id) }}" class="btn btn-primary btn-sm">Editar</a>
+                    <tr>
+                        <td>{{ $presupuesto->id }}</td>
+                        <td>{{ $presupuesto->paciente->nombre }} {{ $presupuesto->paciente->apellido_p }} {{ $presupuesto->paciente->apellido_m }}</td>
+                        <td>{{ $presupuesto->subtotal }}</td>
+                        <td>{{ $presupuesto->descuento }}</td>
+                        <td>{{ $presupuesto->total_final }}</td>
+                        <td>{{ $presupuesto->saldo_pendiente }}</td>
+                        <td>{{ $presupuesto->estado }}</td>
+                        <td>
+                            <a href="{{ route('presupuestos.edit', $presupuesto->id) }}" class="btn btn-primary btn-sm">Editar</a>
 
-                                <!-- Formulario de eliminación -->
-                                <form action="{{ route('presupuestos.destroy', $presupuesto->id) }}" method='POST' style='display:inline;'>
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type='submit' onclick='return confirm("¿Estás seguro de que deseas eliminar este presupuesto?")'class='btn btn-danger btn-sm'>Eliminar</button>  
-                                </form>
+                            <!-- Formulario de eliminación -->
+                            <form action="{{ route('presupuestos.destroy', $presupuesto->id) }}" method='POST' style='display:inline;'>
+                                @csrf
+                                @method('DELETE')
+                                <button type='submit' onclick='return confirm("¿Estás seguro de que deseas eliminar este presupuesto?")' class='btn btn-danger btn-sm'>Eliminar</button>
+                            </form>
 
-                            </td>
+                        </td>
 
-                        </tr>
+                    </tr>
 
                     @endforeach
                 </tbody>
 
             </table>
 
-            {{ $presupuestos->links() }} <!-- Paginación -->
+            <nav aria-label="Page navigation" class="mt-3">
+                <div class="d-flex justify-content-center">
+                    <ul class="pagination">
+                        {{ $presupuestos->links('pagination::bootstrap-4') }}
+                    </ul>
+                </div>
+            </nav>
+
+
+
+
         </div>
 
     </div>

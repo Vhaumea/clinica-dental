@@ -16,6 +16,6 @@ class Pieza_dental extends Model
     protected $fillable = [
         'diente',
         'nombre',
-        'observacion'
+        'observacion',
     ];
 }

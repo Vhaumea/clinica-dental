@@ -6,7 +6,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\Horarios_laboralesController;
-use App\Http\Controllers\Pieza_dentalController;
 use App\Http\Controllers\PresupuestoController;
 use App\Http\Controllers\DetallePresupuestoController;
 
@@ -20,9 +19,9 @@ Auth::routes();
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 // USUARIO
-Route::get('/configuracion',[UserController::class, 'config'])->name('config');
+Route::get('/configuracion', [UserController::class, 'config'])->name('config');
 Route::put('/user/update', [UserController::class, 'update'])->name('user.update');
-Route::get('/user/avatar/{filename?}', [UserController::class,'getImage'])->name('user.avatar');
+Route::get('/user/avatar/{filename?}', [UserController::class, 'getImage'])->name('user.avatar');
 
 // USUARIOS
 Route::get('users/listar', [UsersController::class, 'index'])->name('users.listar');
@@ -62,11 +61,6 @@ Route::delete('horarios_laborales/{id}', [Horarios_laboralesController::class, '
 // Ruta para mostrar el calendario de horarios laborales
 Route::get('horarios_laborales/calendar', [Horarios_laboralesController::class, 'calendar'])->name('horarios_laborales.calendar');
 
-//ruta pieza dental
-Route::resource('pieza_dental', Pieza_dentalController::class);
-Route::post('/pieza_dental/store', [Pieza_dentalController::class, 'store'])->name('pieza_dental.store');
-Route::get('pieza_dental/create', [Pieza_dentalController::class, 'create'])->name('pieza_dental.create');
-Route::get('pieza_dental', [Pieza_dentalController::class, 'index'])->name('pieza_dental.index');
 
 //ruta para gestion de citas
 use App\Http\Controllers\CitasController;
@@ -82,10 +76,12 @@ Route::get('citas/{id}/edit', [Horarios_laboralesController::class, 'edit'])->na
 // Rutas para la gestión de presupuestos
 Route::resource('presupuestos', PresupuestoController::class);
 
-
-
+// Ruta para mostrar todos los horarios laborales
+Route::get('presupuestos/index', [PresupuestoController::class, 'index'])->name('presupuestos.index');
 // Ruta para almacenar los detalles del presupuesto
 Route::post('/detalles-presupuesto/store', [DetallePresupuestoController::class, 'store'])->name('detalles-presupuesto.store');
 
 // Ruta para obtener los detalles del presupuesto
 Route::get('/detalles-presupuesto', [DetallePresupuestoController::class, 'index'])->name('detalles-presupuesto.index');
+Route::post('detalles/store', [DetallePresupuestoController::class, 'store'])->name('detalles.store');
+

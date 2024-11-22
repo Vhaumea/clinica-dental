@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -56,11 +56,20 @@ class User extends Authenticatable
 
     //muestra en adminlte la vista de la imagen del usuario
     public function adminlte_image()
-    { 
-            return route('user.avatar', ['filename' => $this->image]);
+    {
+        return route('user.avatar', ['filename' => $this->image]);
+    }
+
+    public function adminlte_desc()
+    {
+        // Obtener el usuario autenticado
+        $user = Auth::user();
+
+        return $user->role;
+    }
+
+    public function adminlte_profile_url()
+    {
+        return route('config');
     }
 }
-
-
-
- 

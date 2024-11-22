@@ -3,110 +3,73 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pacientes;
-use App\Models\Presupuesto; // Importar el modelo
+use App\Models\Presupuesto; 
 use Illuminate\Http\Request;
+
+use App\Models\DetallePresupuesto;
 
 class PresupuestoController extends Controller
 {
     /**
-     * Mostrar todos los presupuestos.
+     * Muestra la vista para crear presupuestos.
      *
      * @return \Illuminate\View\View
      */
+    public function show($id)
+    {
+        // Obtiene todos los presupuestos paginados de a 3 en orden descendente
+        $presupuestos = Presupuesto::orderBy('created_at', 'desc')->paginate(8);
+        
+        return view('presupuestos.index', compact('presupuestos')); 
+    }
+
     public function index()
     {
-        $presupuestos = Presupuesto::paginate(10); // Obtener todos los presupuestos con paginación
-        return view('presupuestos.index', compact('presupuestos')); // Retorna la vista con los presupuestos
-    }
+        // Obtener todos los presupuestos
+        $presupuestos = Presupuesto::with('detalles')->get();
 
-    /**
-     * Mostrar el formulario para crear un nuevo presupuesto.
-     *
-     * @return \Illuminate\View\View
-     */
+        // Calcular el total para cada presupuesto
+        foreach ($presupuestos as $presupuesto) {
+            $presupuesto->total_final = $presupuesto->detalles->sum('precio');
+            $presupuesto->save(); // Guarda el total en la base de datos si es necesario
+        }
+
+        return view('presupuestos.index', compact('presupuestos'));
+    }
     public function create()
     {
+
+        $detalles = DetallePresupuesto::orderBy('created_at', 'desc')->get();
+
         // Obtener todos los pacientes
         $pacientes = Pacientes::all();
-        return view('presupuestos.create', compact('pacientes')); // Retorna la vista del formulario de creación
+        // Obtiene todos los presupuestos paginados de a 3 en orden descendente
+        $presupuestos = Presupuesto::orderBy('created_at', 'desc')->get();
 
+        // Get the last created Presupuesto
+        $lastPresupuesto = Presupuesto::latest()->first();
+
+        return view('presupuestos.create', compact('pacientes', 'presupuestos', 'lastPresupuesto', 'detalles'));
     }
 
     /**
-     * Almacenar un nuevo presupuesto.
+     * Almacena un nuevo presupuesto.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
+        // Valida los datos del presupuesto
         $request->validate([
-            'paciente_id' => 'required|exists:pacientes,id',
-            'subtotal' => 'required|integer',
-            'descuento' => 'required|integer',
-            'total_final' => 'required|integer',
-            'saldo_pendiente' => 'required|decimal:0,2',
-            'estado' => 'required|in:pendiente,en proceso,rechazado',
+            'paciente_id' => 'required|exists:pacientes,id', // Asegúrate de que el paciente exista
+            'nombre_paciente' => 'required|string|max:255',
         ]);
 
-        Presupuesto::create($request->all()); // Crear el nuevo presupuesto
+        // Crea el nuevo presupuesto
+        Presupuesto::create($request->all());
 
-        return redirect()->route('presupuestos.index')->with('success', 'Presupuesto creado correctamente'); // Redirigir a la lista de presupuestos
-    }
-
-    /**
-     * Mostrar el formulario para editar un presupuesto existente.
-     *
-     * @param \App\Models\Presupuesto $presupuesto
-     * @return \Illuminate\View\View
-     */
-    public function edit(Presupuesto $presupuesto)
-    {
-        return view('presupuestos.edit', compact('presupuesto')); // Retorna la vista de edición con el presupuesto a editar
-    }
-
-    /**
-     * Actualizar un presupuesto existente.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Presupuesto $presupuesto
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function update(Request $request, Presupuesto $presupuesto)
-    {
-        $request->validate([
-            'paciente_id' => 'required|exists:pacientes,id',
-            'subtotal' => 'required|integer',
-            'descuento' => 'required|integer',
-            'total_final' => 'required|integer',
-            'saldo_pendiente' => 'required|decimal:0,2',
-            'estado' => 'required|in:pendiente,en proceso,rechazado',
-        ]);
-
-        $presupuesto->update($request->all()); // Actualizar los datos del presupuesto
-
-        return redirect()->route('presupuestos.index')->with('success', 'Presupuesto actualizado correctamente'); // Redirigir a la lista de presupuestos
-    }
-
-    /**
-     * Eliminar un presupuesto de la base de datos.
-     *
-     * @param \App\Models\Presupuesto $presupuesto
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function destroy(Presupuesto $presupuesto)
-    {
-        $presupuesto->delete(); // Eliminar el presupuesto
-
-        return redirect()->route('presupuestos.index')->with('success', 'Presupuesto eliminado correctamente'); // Redirigir a la lista de presupuestos
-    }
-
-    public function getPresupuestosPendientes($pacienteId)
-    {
-        $presupuestos = Presupuesto::where('paciente_id', $pacienteId)
-            ->where('estado', 'pendiente')
-            ->get(['id', 'detalles', 'created_at']);
-
-        return response()->json($presupuestos);
+        // Redirige a la vista de creación con un mensaje de éxito
+        return redirect()->route('presupuestos.create')->with('success', 'Presupuesto creado con éxito.');
     }
 }

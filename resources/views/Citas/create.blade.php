@@ -7,7 +7,7 @@
 <div class="container">
     @include('includes.message')
     <div class="card">
-        <div class="card-header">{{ __('Crear Cita') }}</div>
+        <div class="card-header">{{ __('Reserva de horas') }}</div>
         <div class="card-body">
             <form action="{{ route('citas.store') }}" method="POST">
                 @csrf
@@ -155,6 +155,80 @@
     </div>
 </div>
 
+    <div class="max-w-2xl mx-auto px-4 py-6">
+        <div class="mb-8">
+            <img src="{{ asset('images/logo.png') }}" alt="SanaSalud" class="h-8 mx-auto">
+            <h1 class="text-2xl text-center mt-4">SanaSalud</h1>
+            <h2 class="text-xl text-center text-gray-600">Reserva de horas</h2>
+        </div>
+
+        {{-- Progress Steps --}}
+        <div class="flex items-center justify-between mb-8 px-4">
+            <div class="w-full flex items-center">
+                <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-blue-500 text-white">✓</div>
+                <div class="flex-grow h-1 mx-4 bg-blue-500"></div>
+                <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-blue-500 text-white"></div>
+                <div class="flex-grow h-1 mx-4 bg-gray-200"></div>
+                <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gray-200"></div>
+                <div class="flex-grow h-1 mx-4 bg-gray-200"></div>
+                <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gray-200"></div>
+            </div>
+        </div>
+
+        {{-- Doctor Info Card --}}
+        <div class="bg-white rounded-lg shadow-sm p-4 mb-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-xl">
+                    A
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium">Dra {{ $doctor->name ?? 'Alanis Maldonado' }}</h3>
+                    <p class="text-gray-600">General</p>
+                </div>
+            </div>
+            <div class="mt-4">
+                <p class="font-medium">Sucursal Santiago Centro</p>
+                <p class="text-gray-600">Sanasalud Vivo Centro</p>
+                <p class="mt-2">Duración 30 minutos</p>
+            </div>
+        </div>
+
+        {{-- Calendar Section --}}
+        <div class="mb-6">
+            <h3 class="text-lg mb-4">Semana del 20 al 26 de enero</h3>
+            <div class="grid grid-cols-7 gap-2 mb-6">
+                @foreach(['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'] as $index => $day)
+                <div class="text-center {{ $index === 4 ? 'bg-blue-500 text-white rounded-lg p-2' : 'bg-gray-50 rounded-lg p-2' }}">
+                    <div class="text-sm">{{ $day }}</div>
+                    <div class="font-medium">{{ 20 + $index }}</div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Time Slots --}}
+        <div class="mb-6">
+            <h3 class="text-lg mb-4">Viernes 24 de enero</h3>
+            <div class="flex gap-4 mb-4">
+                <button class="bg-blue-500 text-white px-4 py-2 rounded-lg">Todos los horarios</button>
+                <button class="bg-gray-100 px-4 py-2 rounded-lg">Mañana</button>
+                <button class="bg-gray-100 px-4 py-2 rounded-lg">Tarde</button>
+            </div>
+
+            <div class="grid grid-cols-4 gap-4">
+                @foreach(['09:15', '09:45', '10:15', '10:45', '11:15', '11:45', '12:15', '14:15', '14:45', '15:15', '15:45', '16:15', '16:45', '17:15', '17:45', '18:15'] as $time)
+                <button class="bg-gray-50 hover:bg-gray-100 p-3 rounded-lg text-center">
+                    {{ $time }}
+                </button>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Reserve Button --}}
+        <button class="w-full bg-blue-500 text-white py-4 rounded-lg text-lg font-medium">
+            Reservar
+        </button>
+    </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -193,20 +267,6 @@
                     pacienteIdInput.value = option.dataset.id; // Asigna el ID al campo oculto
                     suggestions.innerHTML = ''; // Limpia las sugerencias
 
-                    // Obtener presupuestos del paciente seleccionado
-                    fetch(`/citas/get-presupuestos-pendientes/${option.dataset.id}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            // Limpiar y llenar el select de presupuestos
-                            presupuestosSelect.innerHTML = '<option value="">Sin presupuesto</option>';
-                            data.forEach(presupuesto => {
-                                const option = document.createElement('option');
-                                option.value = presupuesto.id;
-                                option.textContent = `${presupuesto.id} (${new Date(presupuesto.created_at).toLocaleDateString()})`;
-                                presupuestosSelect.appendChild(option);
-                            });
-                        })
-                        .catch(error => console.error('Error:', error));
                 });
 
                 suggestions.appendChild(option);

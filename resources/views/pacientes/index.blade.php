@@ -1,6 +1,7 @@
 @extends('adminlte::page')
 
 @section('title', 'Pacientes')
+
 @section('content')
 <div class="container">
     <div class="card">
@@ -51,3 +52,4 @@
 </div>
 
 @endsection
+

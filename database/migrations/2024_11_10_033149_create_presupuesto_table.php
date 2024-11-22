@@ -6,9 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    
     public function up(): void
     {
         Schema::create('presupuesto', function (Blueprint $table) {
@@ -17,8 +15,8 @@ return new class extends Migration
             $table->integer('subtotal'); // Subtotal como entero
             $table->integer('descuento'); // Descuento como entero
             $table->integer('total_final'); // Total final como entero
-            $table->decimal('saldo_pendiente', 10, 2); // 
-            $table->enum('estado', ['pendiente', 'en proceso', 'rechazado'])->default('pendiente'); // Estado del presupuesto
+            $table->decimal('saldo_pendiente');
+            $table->enum('estado', ['Pendiente', 'En proceso', 'Rechazado'])->default('Pendiente'); // Estado del presupuesto
             $table->timestamps(); // Campos created_at y updated_at
         });
     }

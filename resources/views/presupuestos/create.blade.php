@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container">
-    @include('includes.message') <!-- Mensajes de éxito o error -->
+    @include('includes.message')
 
     <!-- Tarjeta para la información del presupuesto -->
     <div class="card mb-4">
@@ -12,120 +12,182 @@
         <div class="card-body">
             <form action="{{ route('presupuestos.store') }}" method="POST">
                 @csrf
+                <!-- Campo de entrada para buscar el RUT del paciente -->
+                <div class="row mb-3">
+                    <label for="rut_paciente" class="col-md-4 col-form-label text-md-end">{{ __('RUT del Paciente') }}</label>
+                    <div class="col-md-6">
+                        <input id="rut_paciente" type="text" class="form-control @error('rut_paciente') is-invalid @enderror" name="rut_paciente" autocomplete="off" required>
 
-                <div class="presupuesto-container">
-                    <!-- Campo de entrada para buscar el RUT del paciente -->
-                    <div class="row mb-3">
-                        <label for="rut_paciente" class="col-md-4 col-form-label text-md-end">{{ __('RUT del Paciente') }}</label>
-                        <div class="col-md-6">
-                            <input id="rut_paciente" type="text" class="form-control @error('rut_paciente') is-invalid @enderror" name="rut_paciente" autocomplete="off" required>
+                        @error('rut_paciente')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
 
-                            @error('rut_paciente')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-
-                            <!-- Lista de coincidencias para mostrar mientras se escribe -->
-                            <div id="rut_suggestions" class="list-group mt-1"></div>
-                        </div>
+                        <!-- Lista de coincidencias para mostrar mientras se escribe -->
+                        <div id="rut_suggestions" class="list-group mt-1"></div>
                     </div>
-
-                    <!-- Campo oculto para almacenar el ID del paciente -->
-                    <input type="hidden" id="paciente_id" name="paciente_id">
-
-                    <!-- Campo para mostrar el nombre del paciente basado en el RUT seleccionado -->
-                    <div class="row mb-3">
-                        <label for="nombre_paciente" class="col-md-4 col-form-label text-md-end">{{ __('Nombre del Paciente') }}</label>
-                        <div class="col-md-6">
-                            <input id="nombre_paciente" type="text" class="form-control" name="nombre_paciente" readonly>
-                        </div>
-                    </div>
-
-                    <!-- Fila para tabla de detalles y resumen -->
-                    <div class="row">
-                        <!-- Tabla de detalles -->
-                        <div class="col-md-8">
-                            <table id="tablaDetalles" class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>N° Detalle</th>
-                                        <th>Pieza</th>
-                                        <th>Tratamiento</th>
-                                        <th>Estado</th>
-                                        <th>Precio</th>
-                                        <th>Observaciones</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="cuerpoTablaDetalles"></tbody>
-                            </table>
-                        </div>
-
-                        <!-- Resumen del presupuesto en un cuadro a la derecha -->
-                        <div class="col-md-4">
-                            <div class="card presupuesto-resumen">
-                                <div class="card-header">{{ __('Resumen del Presupuesto') }}</div>
-                                <div class="card-body">
-                                    <p>Subtotal: <span id="subtotal">0</span></p>
-                                    <p>Descuento: <span id="descuento">0</span></p>
-                                    <p>Total Final: <span id="totalFinal">0</span></p>
-                                    <!-- Botón para guardar el presupuesto, colocado debajo de la tabla -->
-                                    <div class="row mt-3">
-                                        <div class="col-md-12 text-center">
-                                            <button type="submit" class="btn btn-primary">Guardar Presupuesto</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
+
+                <!-- Campo oculto para almacenar el ID del paciente -->
+                <input type="hidden" id="paciente_id" name="paciente_id">
+
+                <!-- Campo para mostrar el nombre del paciente basado en el RUT seleccionado -->
+                <div class="row mb-3">
+                    <label for="nombre_paciente" class="col-md-4 col-form-label text-md-end">{{ __('Nombre del Paciente') }}</label>
+                    <div class="col-md-6">
+                        <input id="nombre_paciente" type="text" class="form-control" name="nombre_paciente" readonly>
+                    </div>
+                </div>
+
+                <!-- Campo oculto para el subtotal, descuento, saldo_pendiente, total_final  -->
+                <input type="hidden" name="subtotal" value="0">
+                <input type="hidden" name="descuento" value="0">
+                <input type="hidden" name="saldo_pendiente" value="0">
+                <input type="hidden" name="total_final" value="0">
+                <div class="text-center my-3">
+                    <button type="submit" class="btn btn-primary">Crear Presupuesto</button>
+                </div>
+
             </form>
+
+            <div class="card mb-4">
+                <div class="card-header">{{ __('Listado de Presupuestos') }}</div>
+                <table class="table ">
+                    <thead>
+                        <tr>
+                            <th>Id Presupuesto</th>
+                            <th>Paciente</th>
+                            <th>Subtotal</th>
+                            <th>Descuento</th>
+                            <th>Saldo Pendiente</th>
+                            <th>Total Final</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($presupuestos as $presupuesto)
+                        <tr>
+                            <td>
+                                <a href="#" onclick="selectPresupuesto({{ $presupuesto->id }})">{{ $presupuesto->id }}</a>
+                            </td>
+                            <td>{{ $presupuesto->paciente->nombre}} {{ $presupuesto->paciente->apellido_p}} {{ $presupuesto->paciente->apellido_m}}</td>
+                            <td>{{ $presupuesto->subtotal }}</td>
+                            <td>{{ $presupuesto->descuento }}</td>
+                            <td>{{ $presupuesto->saldo_pendiente }}</td>
+                            <td>{{ $presupuesto->total_final }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                
+
+
+            </div>
         </div>
     </div>
-
 
     <!-- Tarjeta para los detalles del presupuesto -->
     <div class="card">
         <div class="card-header">{{ __('Detalles del Presupuesto') }}</div>
         <div class="card-body">
+            <div class="card mb-4">
+                <div class="card-header">{{ __('Listado de Detalles del Presupuesto') }}</div>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Id Presupuesto</th>
+                            <th>Pieza</th>
+                            <th>Tratamiento</th>
+                            <th>Observaciones</th>
+                            <th>Precio</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($detalles as $detalle)
+                        <tr>
+                            <td>{{ $detalle->presupuesto_id }}</td>
+                            <td>{{ $detalle->pieza }}</td>
+                            <td>{{ $detalle->tratamiento }}</td>
+                            <td>{{ $detalle->observaciones }}</td>
+                            <td>$ {{ $detalle->precio }} </td>
+                            <td>{{ $detalle->tratamiento_estado }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                
+            </div>
             <!-- Contenedor para los detalles -->
-            <form action="{{ route('detalles-presupuesto.store') }}" method="POST" id="detalles-form">
+            <form action="{{ route('detalles.store') }}" method="POST">
                 @csrf
-                <div id="detalles-container">
-                    <table id="tablaDetalles" class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th class="col-pieza-dental">Pieza</th>
-                                <th>Tratamiento</th>
-                                <th>Observaciones</th>
-                                <th class="col-precio">Precio</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cuerpoTablaDetalles">
-                            <!-- Aquí se agregarán los detalles -->
-                            <tr>
-                                <td><input type="text" class="form-control pieza-id" name="pieza_id[]" placeholder="Pieza" /></td>
-                                <td><input type="text" class="form-control tratamiento" name="tratamiento[]" placeholder="Tratamiento" /></td>
-                                <td><input type="text" class="form-control observaciones" name="observaciones[]" placeholder="Observaciones" /></td>
-                                <td><input type="number" class="form-control precio" name="precio[]" value="0" min="0" placeholder="Precio" /></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <table id='tablaDetalles' class='table table-striped'>
+                    <thead>
+                        <tr>
+                            <th>Id Presupuesto</th>
+                            <th>Pieza</th>
+                            <th>Tratamiento</th>
+                            <th>Observaciones</th>
+                            <th>Precio</th>
+                        </tr>
+                    </thead>
+                    <tbody id='cuerpoTablaDetallesDetalles'>
+                        <!-- Aquí se agregarán los detalles -->
+                        <tr>
+                            <td>
+                                <input type="text" id="presupuesto_id" name="presupuesto_id" class="form-control @error('presupuesto_id') is-invalid @enderror" value="{{ $lastPresupuesto ? $lastPresupuesto->id : '' }}" readonly style="width: 90px;" />
+                                @error('presupuesto_id')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </td>
+                            <td>
+                                <input id="pieza" type="text" class="form-control @error('pieza') is-invalid @enderror" name="pieza" required style="width: 90px;" />
+                                @error('pieza')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </td>
 
-                <!-- Botón para agregar detalles -->
-                <div class="text-center mb-3">
-                    <button type="button" id="add-detalle" class="btn btn-secondary">Agregar Detalle</button>
+                            <td>
+                                <input id="tratamiento" type="text" class="form-control @error('tratamiento') is-invalid @enderror" name="tratamiento" required style="width: 300px;" />
+                                @error('tratamiento')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </td>
+                            <td>
+                                <textarea id="observaciones" class="form-control @error('observaciones') is-invalid @enderror" name="observaciones" rows="3" style="width: 400px;" placeholder="Observaciones"></textarea>
+                                @error('observaciones')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </td>
+                            <td>
+                                <input id="precio" type="number" class="form-control @error('precio') is-invalid @enderror" name="precio" min="0" required style="width: 100px;" placeholder="$ Precio" /> 
+                                @error('precio')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="text-center my-3">
+                    <!-- Botón para guardar detalles -->
+                    <button type="submit" class="btn btn-primary">Agregar Detalle</button>
                 </div>
-
             </form>
-
         </div>
     </div>
 </div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
@@ -133,7 +195,7 @@
         const rutInput = document.getElementById('rut_paciente');
         const nombreInput = document.getElementById('nombre_paciente');
         const suggestions = document.getElementById('rut_suggestions');
-        const presupuestosSelect = document.getElementById('presupuestos');
+
         const pacienteIdInput = document.getElementById('paciente_id'); // Campo oculto para el ID
 
         // Lista de pacientes cargados desde el backend
@@ -173,6 +235,8 @@
         // Limpiar sugerencias cuando se selecciona el campo
         rutInput.addEventListener('focus', () => suggestions.innerHTML = '');
     });
+
+    // funcion para el detalle
     document.addEventListener('DOMContentLoaded', function() {
         const addButton = document.getElementById('add-detalle');
         const cuerpoTablaDetalles = document.getElementById('cuerpoTablaDetalles');
@@ -232,16 +296,90 @@
                 });
         }
     });
+
+    function selectPresupuesto(id) {
+        document.getElementById('presupuesto_id').value = id; // Actualiza el campo de entrada con el ID seleccionado
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const addButton = document.getElementById('add-detalle');
+
+        addButton.addEventListener('click', function() {
+            // Obtener datos del formulario
+            const precio = document.getElementById('precio').value;
+            const presupuestoId = document.getElementById('presupuesto_id').value;
+
+            // Enviar datos al servidor usando fetch API
+            fetch('{{ route("detalles.store") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        precio: precio,
+                        presupuesto_id: presupuestoId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Actualizar la tabla del presupuesto con los nuevos detalles
+                        fetchDetalles(presupuestoId); // Función para actualizar los detalles y totales
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    });
+
+    function fetchDetalles(presupuestoId) {
+        fetch(`{{ url('/detalles-presupuesto') }}/${presupuestoId}`)
+            .then(response => response.json())
+            .then(detalles => {
+                // Aquí actualizas la tabla con los nuevos detalles y recalculas el total
+            });
+    }
 </script>
 <style>
-    .col-pieza-dental {
-        width: 85px;
-        /* Ajusta este valor según sea necesario */
+    .pagination {
+        justify-content: center;
+        /* Centra la paginación */
     }
 
-    .col-precio {
-        width: 150px;
-        /* Ajusta este valor según sea necesario */
+    .pagination .page-item {
+        margin: 0 2px;
+        /* Espaciado entre los elementos */
+    }
+
+    .pagination .page-link {
+        border-radius: 5px;
+        /* Bordes redondeados */
+        padding: 5px 8px;
+        /* Espaciado interno más pequeño */
+        font-size: 0.85rem;
+        /* Tamaño de fuente más pequeño */
+        line-height: 1.2;
+        /* Ajusta la altura de línea */
+    }
+
+    .pagination .page-link:hover {
+        background-color: #007bff;
+        /* Color al pasar el mouse */
+        color: white;
+        /* Color del texto al pasar el mouse */
+    }
+
+    .pagination .active .page-link {
+        background-color: #007bff;
+        /* Color del fondo para el elemento activo */
+        color: white;
+        /* Color del texto para el elemento activo */
+    }
+
+    .pagination .disabled .page-link {
+        color: #6c757d;
+        /* Color para enlaces deshabilitados */
     }
 </style>
 @endsection

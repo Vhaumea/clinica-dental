@@ -134,11 +134,11 @@ return [
     */
 
     'usermenu_enabled' => true,
-    'usermenu_header' => false,
+    'usermenu_header' => true,
     'usermenu_header_class' => 'bg-primary',
     'usermenu_image' => true,
-    'usermenu_desc' => false,
-    'usermenu_profile_url' => false,
+    'usermenu_desc' => true,
+    'usermenu_profile_url' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -154,8 +154,8 @@ return [
 
     'layout_topnav' => null,
     'layout_boxed' => null,
-    'layout_fixed_sidebar' => null,
-    'layout_fixed_navbar' => null,
+    'layout_fixed_sidebar' => true,
+    'layout_fixed_navbar' => true,
     'layout_fixed_footer' => null,
     'layout_dark_mode' => null,
 
@@ -196,7 +196,7 @@ return [
     'classes_content_wrapper' => '',
     'classes_content_header' => '',
     'classes_content' => '',
-    'classes_sidebar' => 'sidebar-dark-primary elevation-4',
+    'classes_sidebar' => 'sidebar-dark-cyan elevation-4',
     'classes_sidebar_nav' => '',
     'classes_topnav' => 'navbar-white navbar-light',
     'classes_topnav_nav' => 'navbar-expand',
@@ -222,7 +222,7 @@ return [
     'sidebar_scrollbar_theme' => 'os-theme-light',
     'sidebar_scrollbar_auto_hide' => 'l',
     'sidebar_nav_accordion' => true,
-    'sidebar_nav_animation_speed' => 300,
+    'sidebar_nav_animation_speed' => 150,
 
     /*
     |--------------------------------------------------------------------------
@@ -299,19 +299,13 @@ return [
     */
 
     'menu' => [
-        // Navbar items:
-        [
-            'type' => 'navbar-search',
-            'text' => 'search',
-            'topnav_right' => true,
-        ],
         [
             'type' => 'fullscreen-widget',
             'topnav_right' => true,
         ],
 
         // Sidebar items:
-        
+
         [
             'text' => 'blog',
             'url' => 'admin/blog',
@@ -325,52 +319,50 @@ return [
             'submenu' => [
                 [
                     'text' => 'Crear usuarios',
-                    'url' => 'users\crear',
+                    'url' => 'users/crear',
                 ],
                 [
                     'text' => 'Listado de usuarios',
-                    'url' => 'users\listar',
+                    'url' => 'users/listar',
                 ],
             ],
         ],
         [
-            'text' => 'Horario laboral',
-            'url' => '',
+            'text' => 'Horarios laborales',
             'icon' => 'fas fa-clock',
             'submenu' => [
                 [
                     'text' => 'Crear horario',
-                    'url' => 'horarios_laborales\create', 
+                    'url' => 'horarios_laborales/create',
                 ],
                 [
-                    'text' => 'Listado de horarios', 
-                    'url' =>'horarios_laborales\index',
+                    'text' => 'Listado de horarios',
+                    'url' => 'horarios_laborales/index',
                 ],
             ],
         ],
         ['header' => 'PACIENTES'],
         [
             'text' => 'Pacientes',
-            'url' => 'admin/settings',
             'icon' => 'fas fa-user-injured',
             'submenu' => [
                 [
                     'text' => 'Crear Paciente',
-                    'url' => 'pacientes\crear',
+                    'url' => 'pacientes/crear',
                 ],
                 [
                     'text' => 'Listado de pacientes',
-                    'url' => 'pacientes\index',
+                    'url' => 'pacientes/index',
                 ],
             ],
         ],
-      
+
         [
             'text' => 'Citas',
             'icon' => 'far fa-calendar-alt', // Icono opcional
             'submenu' => [
                 [
-                    'text' => 'Agendar Cita',
+                    'text' => 'Registrar hora',
                     'url'  => 'citas/create', // Ruta para crear cita
                 ],
                 [
@@ -381,38 +373,20 @@ return [
         ],
         [
             'text' => 'Presupuestos',
-            'icon' => 'fas fa-file-invoice', // Icono opcional
+            'icon' => 'fas fa-file-invoice',
             'submenu' => [
                 [
                     'text' => 'Crear Presupuesto',
                     'url'  => 'presupuestos/create', // Ruta para crear presupuesto
                 ],
                 [
-                    'text' => 'Listardo de Presupuestos',
-                    'url'  => 'presupuestos', // Ruta para listar presupuestos
+                    'text' => 'Listado de Presupuestos',
+                    'url'  => 'presupuestos/index', // Ruta para listar presupuestos
                 ],
             ],
         ],
-          
-        
-        
-        ['header' => 'labels'],
-        [
-            'text' => 'Piezas Dentales',
-            'icon' => 'fas fa-tooth', // Puedes elegir un ícono apropiado de Font Awesome
-            'submenu' => [
-                [
-                    'text' => 'Crear Pieza Dental',
-                    'url'  => 'pieza_dental/create', // Asegúrate de que esta ruta esté definida
-                    'icon' => 'fas fa-plus-circle',
-                ],
-                [
-                    'text' => 'Listar Piezas Dentales',
-                    'url'  => 'pieza_dental', // Asegúrate de que esta ruta esté definida
-                    'icon' => 'fas fa-list',
-                ],
-            ],
-        ],
+
+        /*  
         [
             'text' => 'important',
             'icon_color' => 'red',
@@ -427,7 +401,7 @@ return [
             'text' => 'information',
             'icon_color' => 'cyan',
             'url' => '#',
-        ],
+        ], */
     ],
 
     /*
@@ -466,25 +440,53 @@ return [
 
     'plugins' => [
         'Datatables' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',
-                    'asset' => false,
+                    'asset' => true,
                     'location' => '//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js',
                 ],
                 [
                     'type' => 'js',
-                    'asset' => false,
+                    'asset' => true,
                     'location' => '//cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js',
                 ],
                 [
                     'type' => 'css',
-                    'asset' => false,
+                    'asset' => true,
                     'location' => '//cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css',
                 ],
             ],
         ],
+        
+        'FullCalendar' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'css',
+                    'asset' => true,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js',
+                ],
+            ],
+        ],
+
+
         'Select2' => [
             'active' => false,
             'files' => [

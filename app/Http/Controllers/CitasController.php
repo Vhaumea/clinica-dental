@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pacientes;
-use App\Models\Citas;  // Importar el modelo
+use App\Models\Citas; 
 use Illuminate\Http\Request;
 use App\Models\User;
 use Carbon\Carbon;

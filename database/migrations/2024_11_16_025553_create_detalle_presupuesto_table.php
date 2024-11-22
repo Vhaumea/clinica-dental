@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('detalle_presupuesto', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('presupuesto_id')->constrained('presupuesto')->onDelete('cascade'); // Clave foránea con 'presupuesto'
-            $table->foreignId('pieza_dental_id')->nullable()->constrained('pieza_dental')->onDelete('set null'); // Clave foránea opcional
+            $table->foreignId('presupuesto_id')->constrained('presupuesto')->onDelete('cascade'); 
+            $table->foreignId('pieza_id')->nullable()->constrained('pieza_dental')->onDelete('set null'); // Clave foránea opcional
             $table->string('tratamiento', 500); // Tratamiento como string de longitud máxima 500
             $table->enum('tratamiento_estado', ['pendiente', 'en proceso', 'completado'])->default('pendiente'); // Estado del tratamiento
             $table->decimal('precio'); // Valoración como decimal

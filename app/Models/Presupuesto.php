@@ -28,9 +28,9 @@ class Presupuesto extends Model
         return $this->belongsTo(Pacientes::class);
     }
     
+   
     public function detalles()
     {
-        return $this->hasMany(DetallePresupuesto::class, 'presupuesto_id');
+        return $this->hasMany(DetallePresupuesto::class);
     }
-    
 }

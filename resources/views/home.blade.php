@@ -2,7 +2,8 @@
 
 @section('title','Dashboard')
 
-@section('plugins.Swetalert2',true)
+@section('plugins.Datatables',true)
+@section('plugins.FullCalendar',true)
 
 @section('content_header')
     <h1>Dashboard</h1>

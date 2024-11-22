@@ -9,17 +9,20 @@ class DetallePresupuesto extends Model
 {
     use HasFactory;
 
+    protected $table = 'detalle_presupuesto'; // Asegúrate de especificar el nombre correcto
+
     protected $fillable = [
         'presupuesto_id',
-        'pieza_dental_id',
+        'pieza_id',
         'tratamiento',
-        'tratamiento_estado',
-        'precio',
         'observaciones',
+        'precio',
     ];
 
-    public function presupuesto()
+
+
+    public function presupuestos()
     {
-        return $this->belongsTo(Presupuesto::class, 'presupuesto_id');
+        return $this->belongsTo(Presupuesto::class);
     }
 }

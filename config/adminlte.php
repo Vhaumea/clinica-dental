@@ -114,7 +114,7 @@ return [
         'mode' => 'fullscreen',
         'img' => [
             'path' => 'vendor/adminlte/dist/img/image.png',
-            'alt' => 'AdminLTE Preloader Image',
+            'alt' => ' Image',
             'effect' => 'animation__shake',
             'width' => 60,
             'height' => 60,
@@ -135,7 +135,7 @@ return [
 
     'usermenu_enabled' => true,
     'usermenu_header' => true,
-    'usermenu_header_class' => 'bg-primary',
+    'usermenu_header_class' => 'bg-cyan',
     'usermenu_image' => true,
     'usermenu_desc' => true,
     'usermenu_profile_url' => true,
@@ -319,7 +319,7 @@ return [
             'submenu' => [
                 [
                     'text' => 'Crear usuarios',
-                    'url' => 'users/crear',
+                    'url' => 'users/create',
                 ],
                 [
                     'text' => 'Listado de usuarios',
@@ -459,7 +459,6 @@ return [
                 ],
             ],
         ],
-        
         'FullCalendar' => [
             'active' => true,
             'files' => [
@@ -487,6 +486,21 @@ return [
         ],
 
 
+        'TailwindCSS' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'css',
+                    'asset' => true,
+                    'location' => '//cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => '//cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js',
+                ],
+            ],
+        ],
         'Select2' => [
             'active' => false,
             'files' => [

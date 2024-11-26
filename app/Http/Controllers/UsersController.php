@@ -16,7 +16,7 @@ class UsersController extends Controller
 
     public function crear()
     {
-        return view('users.crear'); // Vista para crear usuario
+        return view('users.create'); 
     }
 
 

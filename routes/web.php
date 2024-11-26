@@ -25,8 +25,8 @@ Route::get('/user/avatar/{filename?}', [UserController::class, 'getImage'])->nam
 
 // USUARIOS
 Route::get('users/listar', [UsersController::class, 'index'])->name('users.listar');
-Route::get('users/crear', [UsersController::class, 'crear'])->name('users.crear');
-Route::post('users/crear', [UsersController::class, 'store'])->name('users.store');
+Route::get('users/create', [UsersController::class, 'crear'])->name('users.crear');
+Route::post('users/create', [UsersController::class, 'store'])->name('users.store');
 
 Route::get('users/configuracion/{id}', [UsersController::class, 'configuracion'])->name('users.configuracion');
 Route::put('users/configuracion/{id}', [UsersController::class, 'update'])->name('users.update');
@@ -69,19 +69,17 @@ use App\Http\Controllers\CitasController;
 Route::resource('citas', CitasController::class);
 Route::get('/get-dentistas-disponibles', [CitasController::class, 'getDentistasDisponibles']);
 Route::get('/citas/get-presupuestos-pendientes/{pacienteId}', [CitasController::class, 'obtenerPresupuestosPendientes']);
-// Ruta para mostrar el formulario de edición de una cita existente
-Route::get('citas/{id}/edit', [Horarios_laboralesController::class, 'edit'])->name('citas.edit');
+// Cambia el nombre de la ruta para evitar el conflicto
+Route::get('citas/{id}/edit-horarios', [Horarios_laboralesController::class, 'edit'])->name('horarios.citas.edit');
 
 
-// Rutas para la gestión de presupuestos
-Route::resource('presupuestos', PresupuestoController::class);
 
-// Ruta para mostrar todos los horarios laborales
-Route::get('presupuestos/index', [PresupuestoController::class, 'index'])->name('presupuestos.index');
-// Ruta para almacenar los detalles del presupuesto
+// Cambia el nombre de la ruta manual
+Route::get('presupuestos/index-manual', [PresupuestoController::class, 'index'])->name('presupuestos.index.manual');
+
+// Mantén las demás rutas
 Route::post('/detalles-presupuesto/store', [DetallePresupuestoController::class, 'store'])->name('detalles-presupuesto.store');
-
-// Ruta para obtener los detalles del presupuesto
+Route::resource('presupuestos', PresupuestoController::class);
 Route::get('/detalles-presupuesto', [DetallePresupuestoController::class, 'index'])->name('detalles-presupuesto.index');
 Route::post('detalles/store', [DetallePresupuestoController::class, 'store'])->name('detalles.store');
 

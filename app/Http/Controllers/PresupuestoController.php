@@ -17,8 +17,7 @@ class PresupuestoController extends Controller
      */
     public function show($id)
     {
-        // Obtiene todos los presupuestos paginados de a 3 en orden descendente
-        $presupuestos = Presupuesto::orderBy('created_at', 'desc')->paginate(8);
+        $presupuestos = Presupuesto::orderBy('created_at', 'desc')->get();
         
         return view('presupuestos.index', compact('presupuestos')); 
     }
@@ -26,7 +25,7 @@ class PresupuestoController extends Controller
     public function index()
     {
         // Obtener todos los presupuestos
-        $presupuestos = Presupuesto::with('detalles')->get();
+        $presupuestos = Presupuesto::with('detalles');
 
         // Calcular el total para cada presupuesto
         foreach ($presupuestos as $presupuesto) {
@@ -43,7 +42,6 @@ class PresupuestoController extends Controller
 
         // Obtener todos los pacientes
         $pacientes = Pacientes::all();
-        // Obtiene todos los presupuestos paginados de a 3 en orden descendente
         $presupuestos = Presupuesto::orderBy('created_at', 'desc')->get();
 
         // Get the last created Presupuesto

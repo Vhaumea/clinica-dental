@@ -4,6 +4,7 @@
 
 @section('plugins.Datatables',true)
 @section('plugins.FullCalendar',true)
+@section('plugins.TailwindCSS',true)
 
 @section('content_header')
     <h1>Dashboard</h1>

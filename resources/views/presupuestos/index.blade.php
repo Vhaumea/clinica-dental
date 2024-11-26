@@ -54,17 +54,6 @@
 
             </table>
 
-            <nav aria-label="Page navigation" class="mt-3">
-                <div class="d-flex justify-content-center">
-                    <ul class="pagination">
-                        {{ $presupuestos->links('pagination::bootstrap-4') }}
-                    </ul>
-                </div>
-            </nav>
-
-
-
-
         </div>
 
     </div>

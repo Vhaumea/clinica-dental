@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Pacientes;
 use Illuminate\Http\Request;
+use App\Models\FichaClinica;
+
+use App\Models\Citas;
+use App\Models\Nota_Evolucion;
 use Illuminate\Support\Facades\Validator;
 
 class PacienteController extends Controller
@@ -14,7 +18,7 @@ class PacienteController extends Controller
     }
     public function crear()
     {
-        return view('pacientes.crear'); // Vista para crear paciente
+        return view('pacientes.crear'); 
     }
 
     // Método para crear un nuevo paciente
@@ -26,12 +30,15 @@ class PacienteController extends Controller
             'rut' => 'required|string|max:255|unique:pacientes',
             'nombre' => 'required|string|max:100',
             'apellido_p' => 'required|string|max:200',
-            'apellido_m' => 'nullable|string|max:200',
+            'apellido_m' => 'required|string|max:200',
             'sexo' => 'required|in:Masculino,Femenino,Otro',
-            'email' => 'required|string|email|max:255|unique:pacientes',
+            'email' => 'nullable|string|email|max:255|unique:pacientes',
             'birth' => 'required|date',
             'telefono' => 'required|string|max:15',
+            'region' => 'required|string|max:100', 
+            'comuna' => 'required|string|max:100', 
             'direccion' => 'required|string',
+            'estado' => 'required|string',
         ]);
 
         // Manejo de errores de validación
@@ -39,64 +46,51 @@ class PacienteController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Crear el nuevo Paciente
-        Pacientes::create([
-            'rut' => $request->rut,
-            'nombre' => $request->nombre,
-            'apellido_p' => $request->apellido_p,
-            'apellido_m' => $request->apellido_m,
-            'sexo' => $request->sexo,
-            'email' => $request->email,
-            'birth' => $request->birth,
-            'telefono' => $request->telefono,
-            'direccion' => $request->direccion,
-        ]);
+        // Crear el paciente
+        $paciente = Pacientes::create($request->all());
 
-        return redirect()->route('pacientes.index')->with(['message' => 'Paciente creado con exito']);
+        // Redirigir a la vista de creación de la ficha clínica
+        return redirect()->route('fichas_clinicas.create', ['paciente_id' => $paciente->id])->with(['message' => 'Paciente creado con éxito. Crear la ficha clínica.']);
     }
+
     public function index()
     {
         // Obtener todos los pacientes
         $pacientes = Pacientes::all();
 
         // Retornar la vista con los pacientes
-        return view('pacientes\index', compact('pacientes'));
+        return view('pacientes.index', compact('pacientes'));
     }
 
 
     public function edit($id, Request $request)
     {
-        // Obtener el paciente por ID
-        $paciente = Pacientes::find($id);
-        // Determinar el modo (ver o editar)
+        $paciente = Pacientes::findOrFail($id);
+        $fichaClinica = FichaClinica::where('paciente_id', $id)->first();
+        $citas = Citas::where('paciente_id', $id)->get();
+        $notaEvolucion = Nota_Evolucion::where('cita_id', $citas->first()->id ?? null)->first();
         $modo = $request->query('modo', 'ver'); // Por defecto es 'ver'
-        // Retornar la vista con los datos del usuario
-        return view('pacientes.edit', compact('paciente', 'modo'));
+        return view('pacientes.edit', compact('paciente', 'fichaClinica', 'citas', 'notaEvolucion', 'modo'));
     }
+
 
     public function update(Request $request, $id)
     {
-        // Validación y actualización del paciente
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email|max:255|unique:pacientes',
-            'telefono' => 'required|string|max:15',
-            'direccion' => 'required|string',
+        $request->validate([
+            'email' => 'nullable|email|max:255',
+            'telefono' => 'required|string|max:255',
+            'region' => 'required|string|max:100', 
+            'comuna' => 'required|string|max:100', 
+            'direccion' => 'required|string|max:255',
+            'estado' => 'required|string',
         ]);
-        // Obtener el usuario por ID
-        $pacientes = pacientes::find($id);
 
-        // Manejo de errores de validación
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-        // Asignar nuevos valores al objeto del paciente
+        $paciente = Pacientes::findOrFail($id);
+        $paciente->update($request->all());
 
-        $pacientes->email = $request->input('email');
-        $pacientes->telefono = $request->input('telefono');
-        $pacientes->direccion = $request->input('direccion');
-
-        // Guardar los cambios en la base de datos
-        $pacientes->update();
-        return redirect()->route('pacientes.index')->with('success', 'Paciente actualizado exitosamente.');
+        return redirect()->route('pacientes.edit', ['id' => $id])
+            ->with('message', 'Paciente actualizado correctamente');
     }
+
+   
 }

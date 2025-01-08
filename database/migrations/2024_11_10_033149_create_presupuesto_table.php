@@ -16,7 +16,8 @@ return new class extends Migration
             $table->integer('descuento'); // Descuento como entero
             $table->integer('total_final'); // Total final como entero
             $table->decimal('saldo_pendiente');
-            $table->enum('estado', ['Pendiente', 'En proceso', 'Rechazado'])->default('Pendiente'); // Estado del presupuesto
+            $table->date('fecha'); // Campo de fecha
+            $table->enum('estado', ['Pendiente', 'En proceso', 'Rechazado','Completado'])->default('Pendiente'); // Estado del presupuesto
             $table->timestamps(); // Campos created_at y updated_at
         });
     }

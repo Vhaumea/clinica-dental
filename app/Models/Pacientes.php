@@ -18,7 +18,10 @@ class Pacientes extends Model
         'birth',
         'telefono',
         'email',
+        'region',
+        'comuna',
         'direccion',
+        'estado',
     ];
    
 }

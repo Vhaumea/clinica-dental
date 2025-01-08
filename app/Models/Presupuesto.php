@@ -19,6 +19,7 @@ class Presupuesto extends Model
         'descuento',
         'total_final',
         'saldo_pendiente',
+        'fecha',
         'estado',
     ];
 
@@ -27,10 +28,30 @@ class Presupuesto extends Model
     {
         return $this->belongsTo(Pacientes::class);
     }
-    
-   
+
+
     public function detalles()
     {
         return $this->hasMany(DetallePresupuesto::class);
+    }
+
+    public function abonos()
+    {
+        return $this->hasMany(Abono::class);
+    }
+
+    public function calcularTotalFinal()
+    {
+        $subtotal = $this->subtotal;
+        $descuento = $this->descuento ?? 0;
+        $this->total_final = $subtotal - ($subtotal * ($descuento / 100));
+        $this->save();
+    }
+
+    public function calcularSaldoPendiente()
+    {
+        $totalAbonos = $this->abonos->sum('monto_abono');
+        $this->saldo_pendiente = $this->total_final - $totalAbonos;
+        $this->save();
     }
 }

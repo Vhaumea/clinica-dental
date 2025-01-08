@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'logo' => '<b>Clínica </b>DentalJen',
+    'logo' => '<b class="logo-bold">Clínica DentalJen</b>',
     'logo_img' => 'vendor/adminlte/dist/img/image.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
@@ -88,9 +88,9 @@ return [
         'img' => [
             'path' => 'vendor/adminlte/dist/img/image.png',
             'alt' => 'Auth Logo',
-            'class' => '',
-            'width' => 50,
-            'height' => 50,
+            'class' => 'mx-auto d-block auth-logo-highlight',
+            'width' => 140,
+            'height' => 140,
         ],
     ],
 
@@ -114,10 +114,10 @@ return [
         'mode' => 'fullscreen',
         'img' => [
             'path' => 'vendor/adminlte/dist/img/image.png',
-            'alt' => ' Image',
+            'alt' => 'Clínica DentalJen',
             'effect' => 'animation__shake',
-            'width' => 60,
-            'height' => 60,
+            'width' => 100,
+            'height' => 100,
         ],
     ],
 
@@ -135,7 +135,7 @@ return [
 
     'usermenu_enabled' => true,
     'usermenu_header' => true,
-    'usermenu_header_class' => 'bg-cyan',
+    'usermenu_header_class' => 'usermenu-header-custom',
     'usermenu_image' => true,
     'usermenu_desc' => true,
     'usermenu_profile_url' => true,
@@ -171,11 +171,10 @@ return [
     |
     */
 
-    'classes_auth_card' => 'card-outline card-primary',
+    'classes_auth_card' => '',
     'classes_auth_header' => '',
     'classes_auth_body' => '',
     'classes_auth_footer' => '',
-    'classes_auth_icon' => '',
     'classes_auth_btn' => 'btn-flat btn-primary',
 
     /*
@@ -193,7 +192,7 @@ return [
     'classes_body' => '',
     'classes_brand' => '',
     'classes_brand_text' => '',
-    'classes_content_wrapper' => '',
+    'classes_content_wrapper' => 'bg-fondo',
     'classes_content_header' => '',
     'classes_content' => '',
     'classes_sidebar' => 'sidebar-dark-cyan elevation-4',
@@ -299,6 +298,7 @@ return [
     */
 
     'menu' => [
+        
         [
             'type' => 'fullscreen-widget',
             'topnav_right' => true,
@@ -309,12 +309,18 @@ return [
         [
             'text' => 'blog',
             'url' => 'admin/blog',
-            'can' => 'manage-blog',
+            'can' => 'admin',
+        ],
+        ['header' => 'DASHBOARD'],
+        [
+            'text' => 'Dashboard',
+            'url' => '/',
+            'icon' => 'fas fa-tachometer-alt',
         ],
         ['header' => 'USUARIOS'],
         [
             'text' => 'Usuarios',
-            'url' => 'users\usuarios',
+            'url' => 'users/usuarios', 
             'icon' => 'fas fa-users',
             'submenu' => [
                 [
@@ -323,7 +329,7 @@ return [
                 ],
                 [
                     'text' => 'Listado de usuarios',
-                    'url' => 'users/listar',
+                    'url' => 'users/index',
                 ],
             ],
         ],
@@ -334,10 +340,15 @@ return [
                 [
                     'text' => 'Crear horario',
                     'url' => 'horarios_laborales/create',
+
                 ],
                 [
                     'text' => 'Listado de horarios',
                     'url' => 'horarios_laborales/index',
+                ],
+                [
+                    'text' => 'Calendario',
+                    'url' => 'horarios_laborales/calendar',
                 ],
             ],
         ],
@@ -356,13 +367,13 @@ return [
                 ],
             ],
         ],
-
+        ['header' => 'SERVICIOS'],
         [
             'text' => 'Citas',
             'icon' => 'far fa-calendar-alt', // Icono opcional
             'submenu' => [
                 [
-                    'text' => 'Registrar hora',
+                    'text' => 'Agendar hora',
                     'url'  => 'citas/create', // Ruta para crear cita
                 ],
                 [
@@ -542,7 +553,7 @@ return [
                 [
                     'type' => 'css',
                     'asset' => false,
-                    'location' => '//cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/themes/blue/pace-theme-center-radar.min.css',
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-bounce.min.css',
                 ],
                 [
                     'type' => 'js',

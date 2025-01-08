@@ -18,13 +18,13 @@ return new class extends Migration
             $table->foreignId('presupuesto_id')->nullable()->constrained('presupuesto')->onDelete('set null'); // Clave foránea con la tabla 'presupuestos', opcional
             $table->date('fecha'); // Columna para la fecha
             $table->time('hora'); // Columna para la hora
-            $table->string('motivo', 255)->nullable(); // Columna 'motivo' de tipo VARCHAR(255), puede ser NULL
-            $table->enum('origen', ['Urgencia', 'Presupuesto', 'Consulta']); // Enum para 'origen'
-            $table->enum('estado', ['Pendiente', 'Confirmada', 'Cancelada', 'Completada'])->default('Pendiente'); // Enum para 'estado', valor por defecto 'Pendiente'
-            $table->string('observaciones', 255)->nullable(); // Columna 'observaciones' de tipo VARCHAR(255), puede ser NULL
+            $table->text('motivo')->nullable();
+            $table->text('origen')->nullable();
+            $table->enum('medio', ['Presencial', 'Telefono', 'Whatsapp', 'Facebook']); // Enum para 'medio'
+            $table->enum('estado', ['Pendiente', 'Confirmada', 'Cancelada', 'Completada', "No asistio"])->default('Pendiente'); // Enum para 'estado', valor por defecto 'Pendiente'
+            $table->text('observaciones')->nullable();
             $table->timestamps(0); // Laravel maneja automáticamente created_at y updated_at como DATETIME
-
-        });
+       });
     }
 
     /**

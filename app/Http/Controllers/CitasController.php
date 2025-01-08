@@ -3,17 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pacientes;
-use App\Models\Citas; 
+use App\Models\Nota_Evolucion;
+use App\Models\Citas;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Carbon\Carbon;
 use App\Models\Horarios_laborales;
 use App\Models\Presupuesto;
-
 use Illuminate\Support\Facades\Validator;
 
 class CitasController extends Controller
-{
+{ public function __construct()
+    {
+        $this->middleware('auth');
+    }
     /**
      * Mostrar todas las citas.
      *
@@ -21,31 +24,46 @@ class CitasController extends Controller
      */
     public function index()
     {
-
-        // Por esto:
-        $citas = Citas::paginate(10); // Cambia 10 por el número de citas que deseas mostrar por página
-
-        return view('citas.index', compact('citas',));
+        $citas = Citas::all();
+        return view('citas.index', compact('citas'));
     }
-
 
     /**
      * Mostrar el formulario para crear una nueva cita.
      *
      * @return \Illuminate\View\View
      */
-    public function create()
+    public function create($paciente_id = null, $presupuesto_id = null)
     {
-        // Obtener solo los usuarios con el rol de 'Dentista'
-        $dentistas = User::where('role', 'Dentista')->get();
+        // Obtener solo los usuarios con el rol de 'Dentista' que tienen horarios laborales
+        $dentistas = User::where('role', 'Dentista')
+            ->whereHas('horarios_laborales')
+            ->get();
 
         // Obtener todos los pacientes
         $pacientes = Pacientes::all();
 
-        //Obtener todos los presupuestos
-        $presupuestos = Presupuesto::all();
+        // Obtener el paciente seleccionado si se proporciona un ID
+        $pacienteSeleccionado = null;
+        if ($paciente_id) {
+            $pacienteSeleccionado = Pacientes::find($paciente_id);
+        }
+
+        // Obtener el presupuesto seleccionado si se proporciona un ID y existe un paciente seleccionado
+        $presupuestoSeleccionado = null;
+        $presupuestos = collect(); // Inicializar como colección vacía
+        if ($pacienteSeleccionado && $presupuesto_id) {
+            $presupuestoSeleccionado = Presupuesto::find($presupuesto_id);
+            if ($presupuestoSeleccionado) {
+                $presupuestos->push($presupuestoSeleccionado); // Agregar el presupuesto seleccionado a la colección
+            }
+        } else {
+            // Obtener todos los presupuestos si no se proporciona un presupuesto_id
+            $presupuestos = Presupuesto::all();
+        }
+
         // Pasar los datos a la vista
-        return view('citas.create', compact('pacientes', 'dentistas', 'presupuestos'));
+        return view('citas.create', compact('pacientes', 'dentistas', 'presupuestos', 'pacienteSeleccionado', 'presupuestoSeleccionado'));
     }
 
     /**
@@ -54,7 +72,6 @@ class CitasController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-
 
     public function store(Request $request)
     {
@@ -66,12 +83,16 @@ class CitasController extends Controller
             'hora' => 'required|date_format:H:i',
             'motivo' => 'nullable|string|max:255',
             'origen' => 'required|in:Urgencia,Presupuesto,Consulta',
-            'observaciones' => 'nullable|string|max:255',
-            'estado' => 'in:Pendiente,Confirmada,Cancelada,Completada',
+            'medio' => 'required|in:Presencial,Telefono,Whatsapp,Facebook',
+            'observaciones' => 'nullable|string',
+            'estado' => 'in:Pendiente',
         ]);
 
-        // Crear una nueva cita
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
+        // Crear una nueva cita
         $cita = Citas::create([
             'paciente_id' => $request->paciente_id,
             'presupuesto_id' => $request->presupuesto_id,
@@ -80,115 +101,114 @@ class CitasController extends Controller
             'hora' => $request->hora,
             'motivo' => $request->motivo,
             'origen' => $request->origen,
+            'medio' => $request->medio,
             'observaciones' => $request->observaciones,
-            'estado' => $request->estado ?: 'Pendiente', // Asigna estado por defecto si no se proporciona
+            'estado' => $request->estado ?: 'Pendiente',
         ]);
-        return redirect()->route('citas.index')->with(['message' => 'Cita creada con exito']);
+
+        return redirect()->route('citas.index')->with(['message' => 'Hora Agendada con éxito']);
     }
 
     /**
      * Mostrar el formulario para editar una cita existente.
      *
-     * @param \App\Models\Citas $cita
+     * @param int $id
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\View\View
      */
     public function edit($id, Request $request)
     {
-        $cita = Citas::findOrFail($id); //obtener cita por id
-        
+        $cita = Citas::findOrFail($id); // Obtener cita por id
+        $notasEvolucion = Nota_Evolucion::where('cita_id', $id)->get(); // Obtener notas de evolución para la cita
+
         $modo = $request->query('modo', 'ver'); // Por defecto es 'ver'
         // Retornar la vista con los datos del usuario
-        return view('citas.edit', compact('cita', 'modo'));  // Retorna la vista de edición con la cita a editar
+        return view('citas.edit', compact('cita', 'modo', 'notasEvolucion')); // Retorna la vista de edición con la cita a editar
     }
 
     /**
      * Actualizar una cita existente.
      *
      * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Citas $cita
+     * @param int $id
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, Citas $cita)
+    public function update(Request $request, $id)
     {
         // Validar los datos del formulario
         $request->validate([
             'observaciones' => 'nullable|string|max:255',
-            'estado' => 'in:Pendiente,Confirmada,Cancelada,Completada',
+            'estado' => 'in:Pendiente,Confirmada,Cancelada,Completada, No asistio',
         ]);
 
-        // Actualizar los datos de la cita
-        $cita->update($request->all());
+        $cita = Citas::findOrFail($id);
 
-        // Redirigir a la lista de citas con un mensaje de éxito
-        return redirect()->route('citas.index')->with(['message' => 'Cita actializada con exito']);
+        // Actualizar los datos de la cita
+        $cita->update([
+            'observaciones' => $request->observaciones,
+            'estado' => $request->estado,
+            'presupuesto_id' => $request->presupuesto_id ?: null, 
+        ]);
+        
+        // Redirigir a la edición de la cita con el modo 'editar'
+        return redirect()->route('citas.edit', ['cita' => $id, 'modo' => 'editar'])->with(['message' => 'Cita actualizada con éxito']);
     }
 
     /**
      * Eliminar una cita de la base de datos.
      *
-     * @param \App\Models\Citas $cita
+     * @param int $id
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(Citas $cita)
-    {
-        // Eliminar la cita
-        $cita->delete();
+ 
 
-        // Redirigir a la lista de citas con un mensaje de éxito
-        return redirect()->route('citas.index')->with('success', 'Cita eliminada correctamente');
-    }
-
-    public function obtenerPresupuestosPendientes($pacienteId)
+    public function getPresupuestos($pacienteId)
     {
+        // Obtener solo los presupuestos con estado 'Pendiente' o 'En Proceso'
         $presupuestos = Presupuesto::where('paciente_id', $pacienteId)
-            ->where('estado', 'pendiente')
-            ->get(['id', 'detalles', 'created_at']); //falta traer el nombre del tratamiento
+            ->whereIn('estado', ['Pendiente', 'En proceso'])
+            ->get();
 
         return response()->json($presupuestos);
     }
 
-    public function getDentistasDisponibles(Request $request)
+    public function getHorariosDisponibles(Request $request)
     {
-        $fechaSeleccionada = Carbon::parse($request->fecha)->startOfDay(); // Aseguramos que solo tomamos el día, no la hora
-        $horariosDisponibles = [];
+        $dentistaId = $request->input('dentista_id');
+        $fecha = Carbon::parse($request->input('fecha'))->startOfDay();
+        $now = Carbon::now();
 
-        // Obtener los dentistas con el rol de 'Dentista'
-        $dentistas = User::where('role', 'Dentista')->get();
+        // Obtener los horarios laborales del dentista para el día seleccionado
+        $horarios = Horarios_laborales::where('user_id', $dentistaId)
+            ->where('estado', 'Activo')
+            ->whereDate('start_datetime', '<=', $fecha)
+            ->whereDate('end_datetime', '>=', $fecha)
+            ->get();
 
-        foreach ($dentistas as $dentista) {
-            // Obtener los horarios laborales del dentista para el día seleccionado
-            $horarios = Horarios_laborales::where('user_id', $dentista->id)
-                ->whereDate('start_datetime', '<=', $fechaSeleccionada) // Verificamos si el turno incluye ese día
-                ->whereDate('end_datetime', '>=', $fechaSeleccionada) // Verificamos si el turno incluye ese día
-                ->get();
+        $horasDisponibles = [];
+        foreach ($horarios as $horario) {
+            $start = Carbon::parse($horario->start_datetime);
+            $end = Carbon::parse($horario->end_datetime);
 
-            foreach ($horarios as $horario) {
-                // Obtener la hora de inicio y la de fin del horario laboral
-                $start = Carbon::parse($horario->start_datetime);
-                $end = Carbon::parse($horario->end_datetime);
+            // Generar las horas disponibles para ese día (de 30 minutos)
+            while ($start->lt($end)) {
+                // Verificar si ya existe una cita en ese horario
+                $existeCita = Citas::where('user_id', $dentistaId)
 
-                $horasDisponibles = [];
-                // Generar las horas disponibles para ese día (de 30 minutos)
-                while ($start->lt($end)) {
-                    // Verificar si ya existe una cita en ese horario
-                    $existeCita = Citas::where('fecha_hora', $start)->exists();
-                    if (!$existeCita) {
-                        $horasDisponibles[] = $start->format('H:i');
-                    }
-                    $start->addMinutes(30); // Incrementamos en intervalos de 30 minutos
+                    ->whereDate('fecha', $fecha)
+                    ->whereTime('hora', $start->format('H:i:s'))
+                    ->where('estado', '!=', 'Cancelada')
+                    ->exists();
+
+                // Verificar si la hora ya ha pasado y si no existe una cita en ese horario
+                if (!$existeCita && ($fecha->isToday() ? $start->gt($now) : true)) {
+                    $horasDisponibles[] = $start->format('H:i');
                 }
 
-                // Si hay horas disponibles, agregar al array de horariosDisponibles
-                if (!empty($horasDisponibles)) {
-                    $horariosDisponibles[$dentista->id] = [
-                        'nombre' => $dentista->name,  // Nombre del dentista
-                        'apellido_p' => $dentista->apellido_p,  // apellido del dentista
-                        'horas' => $horasDisponibles,
-                    ];
-                }
+                $start->addMinutes(30); // Incrementamos en intervalos de 30 minutos
             }
         }
 
-        return response()->json($horariosDisponibles);
+        return response()->json(['horarios' => $horasDisponibles]);
     }
 }

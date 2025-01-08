@@ -18,9 +18,12 @@ return new class extends Migration
             $table->string('name', 100);
             $table->string('apellido_p', 200);
             $table->string('apellido_m', 200);
-            $table->enum('sexo', ['Masculino', 'Femenino', 'Otro']);
+            $table->date('fecha_nacimiento');
+            $table->enum('sexo', ['Masculino', 'Femenino']);
             $table->string('email')->unique();
             $table->string('phone', 15);
+            $table->string('region');
+            $table->string('comuna');
             $table->string('direccion');
             $table->string('password');
             $table->string('image')->nullable(); 

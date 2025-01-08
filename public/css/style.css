@@ -1,0 +1,142 @@
+.bg-fondo {
+    background-image: url('/images/fotofondo.png');
+    background-size: auto;
+    /* Mantiene el tamaño original de la imagen */
+    background-repeat: repeat;
+    /* Permite que la imagen se repita */
+    background-attachment: scroll;
+    /* Permite que la imagen se desplace con el contenido */
+    background-position: top left;
+    /* Posiciona la imagen en la esquina superior izquierda */
+}
+
+.usermenu-header-custom {
+    background-image: url('/images/fondoperfil.jpg');
+    background-size: cover; /* Ajusta la imagen para que cubra todo el contenedor */
+    background-position: center; /* Centra la imagen */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+    height: 100px; /* Ajusta la altura según sea necesario */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white; 
+}
+
+.logo-bold {
+    font-weight: 600; /* Hacer las letras un poco menos gruesas */
+}
+.auth-logo-highlight {
+    background-color: #ffffff; /* Fondo blanco */
+    border-radius: 50%; /* Hacer el fondo circular */
+    padding: 10px; /* Espacio alrededor del logo */
+    display: inline-block; /* Asegurarse de que el fondo se ajuste al contenido */
+}
+.login-bg {
+    background-image: url('/images/fotofondo.png');
+    background-size: auto; /* Ajusta la imagen de fondo para que se contenga dentro de la pantalla */
+    background-repeat: repeat;
+    background-position: bottom right;
+    background-attachment: scroll;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dentista-card.bg-blue-100 {
+    background-color: #ebf8ff;
+}
+
+.dentista-card.border-blue-500 {
+    border: 2px solid #4299e1;
+}
+
+.dentista-card {
+    margin: 0 10px;
+    /* Añadir margen horizontal */
+    transition: background-color 0.3s, border 0.3s;
+    /* Añadir transición para el cambio de color y borde */
+}
+
+.dentista-card.selected {
+    background-color: #ebf8ff;
+    border: 2px solid #4299e1;
+}
+
+.calendar-transition {
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+
+.calendar-transition.show {
+    opacity: 1;
+}
+
+.day-card {
+    transition: background-color 0.3s, border 0.3s;
+    /* Añadir transición para el cambio de color y borde */
+}
+
+.day-card.selected {
+    background-color: #0071E6;
+    border: 2px solid #4299e1;
+}
+
+
+.flex {
+    display: flex;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
+.mb-6 {
+    margin-bottom: 1.5rem;
+}
+
+.bg-gray-500 {
+    background-color: #6b7280;
+}
+
+.text-white {
+    color: white;
+}
+
+.px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.rounded-lg {
+    border-radius: 0.5rem;
+}
+
+.grid {
+    display: grid;
+}
+
+.grid-cols-7 {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.flex-grow {
+    flex-grow: 1;
+}

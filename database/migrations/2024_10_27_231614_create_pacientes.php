@@ -17,11 +17,14 @@ return new class extends Migration
             $table->string('nombre');
             $table->string('apellido_p', 200);
             $table->string('apellido_m', 200);
-            $table->enum('sexo', ['Masculino', 'Femenino', 'Otro']);
+            $table->enum('sexo', ['Masculino', 'Femenino']);
             $table->date('birth');
             $table->string('telefono');
-            $table->string('email');
+            $table->string('email')->nullable();
+            $table->string('region');
+            $table->string('comuna');
             $table->string('direccion');
+            $table->enum('estado', ['Activo', 'Inactivo'])->default('Activo');
             $table->timestamps();
         });
     }

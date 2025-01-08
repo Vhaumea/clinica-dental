@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class UsersController extends Controller
 {
@@ -16,25 +17,30 @@ class UsersController extends Controller
 
     public function crear()
     {
-        return view('users.create'); 
+        return view('users.create');
     }
 
 
     // Método para crear un nuevo usuario
     public function store(Request $request)
     {
+
         // Validación de los datos
         $validator = Validator::make($request->all(), [
             'role' => 'required|string|max:100',
             'rut' => 'required|string|max:255|unique:users',
             'name' => 'required|string|max:100',
             'apellido_p' => 'required|string|max:200',
-            'apellido_m' => 'nullable|string|max:200',
+            'apellido_m' => 'required|string|max:200',
+            'fecha_nacimiento' => 'required|date',
             'sexo' => 'required|in:Masculino,Femenino,Otro',
             'email' => 'required|string|email|max:255|unique:users',
             'phone' => 'required|string|max:15',
+            'region' => 'required|string|max:100', 
+            'comuna' => 'required|string|max:100', 
             'direccion' => 'required|string',
             'password' => 'required|string|min:8|confirmed',
+            'estado' => 'required|string',
         ]);
 
         // Manejo de errores de validación
@@ -49,13 +55,17 @@ class UsersController extends Controller
             'name' => $request->name,
             'apellido_p' => $request->apellido_p,
             'apellido_m' => $request->apellido_m,
+            'fecha_nacimiento' => $request->fecha_nacimiento,
             'sexo' => $request->sexo,
             'email' => $request->email,
             'phone' => $request->phone,
+            'region' => $request->direccion,
+            'comuna' => $request->comuna,
             'direccion' => $request->direccion,
             'password' => Hash::make($request->password),
+            'estado' => $request->estado,
         ]);
-        return redirect()->route('users.listar') // Cambia esto a tu ruta deseada
+        return redirect()->route('users.index') // Cambia esto a tu ruta deseada
             ->with(['message' => 'Usuario creado correctamente']);
     }
 
@@ -66,17 +76,20 @@ class UsersController extends Controller
         $usuarios = User::all();
 
         // Retornar la vista con los usuarios
-        return view('users\listar', compact('usuarios'));
+        return view('users/index', compact('usuarios'));
     }
 
-    public function configuracion($id, Request $request)
+    public function edit($id, Request $request)
     {
-        // Obtener el usuario por ID
-        $usuario = User::find($id);
-        // Determinar el modo (ver o editar)
-        $modo = $request->query('modo', 'ver'); // Por defecto es 'ver'
-        // Retornar la vista con los datos del usuario
-        return view('users.configuracion', compact('usuario', 'modo'));
+        $usuario = User::findOrFail($id);
+        $modo = $request->query('modo', 'ver');
+
+        // Verificar si el usuario no es Admin y está intentando acceder al modo de edición
+        if (Auth::user()->role !== 'Admin' && $modo === 'editar') {
+            return redirect()->route('users.edit', ['id' => $id, 'modo' => 'ver']);
+        }
+
+        return view('users.edit', compact('usuario', 'modo'));
     }
 
     public function update(Request $request, $id)
@@ -85,6 +98,8 @@ class UsersController extends Controller
         $request->validate([
             'email' => 'required|email|max:255|unique:users,email,' . $id,
             'phone' => 'required|string|max:15',
+            'region' => 'required|string|max:100', 
+            'comuna' => 'required|string|max:100',         
             'direccion' => 'required|string',
         ]);
 
@@ -93,34 +108,29 @@ class UsersController extends Controller
 
         // Verificar si el usuario existe
         if (!$usuario) {
-            return redirect()->route('users.index')->with('error', 'Usuario no encontrado.');
+            return redirect()->route('users.index')->with('message', 'Usuario no encontrado.');
         }
 
         // Actualizar los datos del usuario
         $usuario->email = $request->input('email');
         $usuario->phone = $request->input('phone');
+        $usuario->region = $request->input('region');
+        $usuario->comuna = $request->input('comuna');
         $usuario->direccion = $request->input('direccion');
+        $usuario->estado = $request->input('estado');
 
         // Guardar los cambios
         $usuario->update();
-        return redirect()->route('users.configuracion', ['id' => $id])
+        return redirect()->route('users.edit', ['id' => $id])
             ->with('message', 'Usuario actualizado correctamente');
     }
 
-    public function destroy($id)
+    public function toggleStatus($id)
     {
-        // Obtener el usuario por ID
-        $usuario = User::find($id);
+        $usuario = User::findOrFail($id);
+        $usuario->estado = $usuario->estado === 'Activo' ? 'Inactivo' : 'Activo';
+        $usuario->save();
 
-        // Verificar si el usuario existe
-        if (!$usuario) {
-            return redirect()->route('users.index')->with('error', 'Usuario no encontrado.');
-        }
-
-        // Eliminar el usuario
-        $usuario->delete();
-
-        // Redirigir a la lista de usuarios con un mensaje de éxito
-        return redirect()->route('users.listar')->with('message', 'Usuario eliminado correctamente.');
+        return redirect()->route('users.index')->with('message', 'Estado del usuario actualizado correctamente.');
     }
 }

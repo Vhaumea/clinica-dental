@@ -3,40 +3,50 @@
 @section('title', 'Crear Presupuesto')
 
 @section('content')
-<div class="container">
+<div class="container mx-auto p-4">
     @include('includes.message')
 
     <!-- Tarjeta para la información del presupuesto -->
-    <div class="card mb-4">
-        <div class="card-header">{{ __('Información del Presupuesto') }}</div>
-        <div class="card-body">
+    <div class="card shadow-lg rounded-lg overflow-hidden mb-4">
+        <div class="card-header bg-white text-black text-center py-4">
+            <h2 class="text-lg font-semibold">{{ __('Información del Presupuesto') }}</h2>
+        </div>
+        <div class="card-body p-6 bg-gray-100">
             <form action="{{ route('presupuestos.store') }}" method="POST">
                 @csrf
                 <!-- Campo de entrada para buscar el RUT del paciente -->
-                <div class="row mb-3">
-                    <label for="rut_paciente" class="col-md-4 col-form-label text-md-end">{{ __('RUT del Paciente') }}</label>
-                    <div class="col-md-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-black">
+                    <!-- RUT del Paciente -->
+                    <div class="form-group">
+                        <label for="rut_paciente" class="text-gray-700 font-medium">{{ __('RUT del Paciente') }}</label>
                         <input id="rut_paciente" type="text" class="form-control @error('rut_paciente') is-invalid @enderror" name="rut_paciente" autocomplete="off" required>
-
                         @error('rut_paciente')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                         @enderror
-
                         <!-- Lista de coincidencias para mostrar mientras se escribe -->
                         <div id="rut_suggestions" class="list-group mt-1"></div>
                     </div>
-                </div>
 
-                <!-- Campo oculto para almacenar el ID del paciente -->
-                <input type="hidden" id="paciente_id" name="paciente_id">
+                    <!-- Campo oculto para almacenar el ID del paciente -->
+                    <input type="hidden" id="paciente_id" name="paciente_id">
 
-                <!-- Campo para mostrar el nombre del paciente basado en el RUT seleccionado -->
-                <div class="row mb-3">
-                    <label for="nombre_paciente" class="col-md-4 col-form-label text-md-end">{{ __('Nombre del Paciente') }}</label>
-                    <div class="col-md-6">
+                    <!-- Nombre del Paciente -->
+                    <div class="form-group">
+                        <label for="nombre_paciente" class="text-gray-700 font-medium">{{ __('Nombre del Paciente') }}</label>
                         <input id="nombre_paciente" type="text" class="form-control" name="nombre_paciente" readonly>
+                    </div>
+
+                    <!-- Fecha -->
+                    <div class="form-group">
+                        <label for="fecha" class="text-gray-700 font-medium">{{ __('Fecha') }}</label>
+                        <input id="fecha" type="datetime-local" class="form-control @error('fecha') is-invalid @enderror" name="fecha" required />
+                        @error('fecha')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
                     </div>
                 </div>
 
@@ -45,143 +55,87 @@
                 <input type="hidden" name="descuento" value="0">
                 <input type="hidden" name="saldo_pendiente" value="0">
                 <input type="hidden" name="total_final" value="0">
-                <div class="text-center my-3">
-                    <button type="submit" class="btn btn-primary">Crear Presupuesto</button>
-                </div>
-
-            </form>
-
-            <div class="card mb-4">
-                <div class="card-header">{{ __('Listado de Presupuestos') }}</div>
-                <table class="table ">
-                    <thead>
-                        <tr>
-                            <th>Id Presupuesto</th>
-                            <th>Paciente</th>
-                            <th>Subtotal</th>
-                            <th>Descuento</th>
-                            <th>Saldo Pendiente</th>
-                            <th>Total Final</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($presupuestos as $presupuesto)
-                        <tr>
-                            <td>
-                                <a href="#" onclick="selectPresupuesto({{ $presupuesto->id }})">{{ $presupuesto->id }}</a>
-                            </td>
-                            <td>{{ $presupuesto->paciente->nombre}} {{ $presupuesto->paciente->apellido_p}} {{ $presupuesto->paciente->apellido_m}}</td>
-                            <td>{{ $presupuesto->subtotal }}</td>
-                            <td>{{ $presupuesto->descuento }}</td>
-                            <td>{{ $presupuesto->saldo_pendiente }}</td>
-                            <td>{{ $presupuesto->total_final }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                
-
-
-            </div>
         </div>
+        <div class="text-center my-3">
+            <button type="submit" class="btn btn-primary">Crear Presupuesto</button>
+        </div>
+        </form>
     </div>
-
+</div>
+<div class="container mx-auto p-4">
     <!-- Tarjeta para los detalles del presupuesto -->
-    <div class="card">
-        <div class="card-header">{{ __('Detalles del Presupuesto') }}</div>
-        <div class="card-body">
-            <div class="card mb-4">
-                <div class="card-header">{{ __('Listado de Detalles del Presupuesto') }}</div>
-
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Id Presupuesto</th>
-                            <th>Pieza</th>
-                            <th>Tratamiento</th>
-                            <th>Observaciones</th>
-                            <th>Precio</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($detalles as $detalle)
-                        <tr>
-                            <td>{{ $detalle->presupuesto_id }}</td>
-                            <td>{{ $detalle->pieza }}</td>
-                            <td>{{ $detalle->tratamiento }}</td>
-                            <td>{{ $detalle->observaciones }}</td>
-                            <td>$ {{ $detalle->precio }} </td>
-                            <td>{{ $detalle->tratamiento_estado }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                
-            </div>
-            <!-- Contenedor para los detalles -->
+    <div class="card shadow-lg rounded-lg overflow-hidden mb-4">
+        <div class="card-header bg-white text-black text-center py-4">
+            <h2 class="text-lg font-semibold">{{ __('Detalles del Presupuesto') }}</h2>
+        </div>
+        <div class="card-body p-6 bg-gray-100">
             <form action="{{ route('detalles.store') }}" method="POST">
                 @csrf
-                <table id='tablaDetalles' class='table table-striped'>
-                    <thead>
-                        <tr>
-                            <th>Id Presupuesto</th>
-                            <th>Pieza</th>
-                            <th>Tratamiento</th>
-                            <th>Observaciones</th>
-                            <th>Precio</th>
-                        </tr>
-                    </thead>
-                    <tbody id='cuerpoTablaDetallesDetalles'>
-                        <!-- Aquí se agregarán los detalles -->
-                        <tr>
-                            <td>
-                                <input type="text" id="presupuesto_id" name="presupuesto_id" class="form-control @error('presupuesto_id') is-invalid @enderror" value="{{ $lastPresupuesto ? $lastPresupuesto->id : '' }}" readonly style="width: 90px;" />
-                                @error('presupuesto_id')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                                @enderror
-                            </td>
-                            <td>
-                                <input id="pieza" type="text" class="form-control @error('pieza') is-invalid @enderror" name="pieza" required style="width: 90px;" />
-                                @error('pieza')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                                @enderror
-                            </td>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <!-- Id Presupuesto -->
+                    <div class="form-group">
+                        <label for="presupuesto_id" class="text-gray-700 font-medium">{{ __('Id Presupuesto') }}</label>
+                        <input type="text" id="presupuesto_id" name="presupuesto_id" class="form-control @error('presupuesto_id') is-invalid @enderror" value="{{ request()->query('presupuesto_id') }}" readonly />
+                        <div id="presupuesto-error" class="invalid-feedback" style="display: none;">
+                            <strong>Por favor, cree un presupuesto antes de agregar un detalle.</strong>
+                        </div>
+                        @error('presupuesto_id')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
 
-                            <td>
-                                <input id="tratamiento" type="text" class="form-control @error('tratamiento') is-invalid @enderror" name="tratamiento" required style="width: 300px;" />
-                                @error('tratamiento')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                                @enderror
-                            </td>
-                            <td>
-                                <textarea id="observaciones" class="form-control @error('observaciones') is-invalid @enderror" name="observaciones" rows="3" style="width: 400px;" placeholder="Observaciones"></textarea>
-                                @error('observaciones')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                                @enderror
-                            </td>
-                            <td>
-                                <input id="precio" type="number" class="form-control @error('precio') is-invalid @enderror" name="precio" min="0" required style="width: 100px;" placeholder="$ Precio" /> 
-                                @error('precio')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                                @enderror
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                    <!-- Pieza -->
+                    <div class="form-group">
+                        <label for="pieza" class="text-gray-700 font-medium">{{ __('Pieza') }}</label>
+                        <input id="pieza" type="text" class="form-control @error('pieza') is-invalid @enderror" name="pieza" required />
+                        @error('pieza')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+
+                    <!-- Tratamiento -->
+                    <div class="form-group">
+                        <label for="tratamiento" class="text-gray-700 font-medium">{{ __('Tratamiento') }}</label>
+                        <input id="tratamiento" type="text" class="form-control @error('tratamiento') is-invalid @enderror" name="tratamiento" required />
+                        @error('tratamiento')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+
+                    <!-- Campo oculto para Estado Tratamiento -->
+                    <input type="hidden" id="tratamiento_estado" name="tratamiento_estado" value="Pendiente">
+
+                    <!-- Observaciones -->
+                    <div class="form-group">
+                        <label for="observaciones" class="text-gray-700 font-medium">{{ __('Observaciones') }}</label>
+                        <textarea id="observaciones" class="form-control @error('observaciones') is-invalid @enderror" name="observaciones" rows="3" placeholder="Observaciones"></textarea>
+                        @error('observaciones')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+
+                    <!-- Precio -->
+                    <div class="form-group">
+                        <label for="precio" class="text-gray-700 font-medium">{{ __('Precio') }}</label>
+                        <input id="precio" type="number" class="form-control @error('precio') is-invalid @enderror" name="precio" min="0" required placeholder="$ Precio" />
+                        @error('precio')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+                </div>
+                <!-- Botón para guardar detalles -->
                 <div class="text-center my-3">
-                    <!-- Botón para guardar detalles -->
-                    <button type="submit" class="btn btn-primary">Agregar Detalle</button>
+                    <button type="button" id="agregar-detalle" class="btn btn-primary">Agregar Detalle</button>
                 </div>
             </form>
         </div>
@@ -191,6 +145,19 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fechaInput = document.getElementById('fecha');
+        if (fechaInput) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+            fechaInput.value = formattedDateTime;
+        }
+    });
     document.addEventListener('DOMContentLoaded', function() {
         const rutInput = document.getElementById('rut_paciente');
         const nombreInput = document.getElementById('nombre_paciente');
@@ -340,46 +307,52 @@
                 // Aquí actualizas la tabla con los nuevos detalles y recalculas el total
             });
     }
+    document.getElementById('agregar-detalle').addEventListener('click', function() {
+        const presupuestoIdInput = document.getElementById('presupuesto_id');
+        const presupuestoError = document.getElementById('presupuesto-error');
+
+        if (!presupuestoIdInput.value) {
+            presupuestoIdInput.classList.add('is-invalid');
+            presupuestoError.style.display = 'block';
+            presupuestoIdInput.focus();
+            return;
+        } else {
+            presupuestoIdInput.classList.remove('is-invalid');
+            presupuestoError.style.display = 'none';
+        }
+
+        // Si el campo está completado, permitir el envío del formulario
+        const form = presupuestoIdInput.closest('form');
+        if (form.checkValidity()) {
+            form.submit();
+        } else {
+            form.reportValidity();
+        }
+    });
 </script>
-<style>
-    .pagination {
-        justify-content: center;
-        /* Centra la paginación */
-    }
+@section('js')
+<script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="//cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 
-    .pagination .page-item {
-        margin: 0 2px;
-        /* Espaciado entre los elementos */
-    }
-
-    .pagination .page-link {
-        border-radius: 5px;
-        /* Bordes redondeados */
-        padding: 5px 8px;
-        /* Espaciado interno más pequeño */
-        font-size: 0.85rem;
-        /* Tamaño de fuente más pequeño */
-        line-height: 1.2;
-        /* Ajusta la altura de línea */
-    }
-
-    .pagination .page-link:hover {
-        background-color: #007bff;
-        /* Color al pasar el mouse */
-        color: white;
-        /* Color del texto al pasar el mouse */
-    }
-
-    .pagination .active .page-link {
-        background-color: #007bff;
-        /* Color del fondo para el elemento activo */
-        color: white;
-        /* Color del texto para el elemento activo */
-    }
-
-    .pagination .disabled .page-link {
-        color: #6c757d;
-        /* Color para enlaces deshabilitados */
-    }
-</style>
+<script>
+    $(document).ready(function() {
+        $('#detallesTable').DataTable({
+            "language": {
+                "lengthMenu": "Mostrar _MENU_ registros por página",
+                "zeroRecords": "No se encontraron resultados",
+                "info": "Mostrando página _PAGE_ de _PAGES_",
+                "infoEmpty": "No hay registros disponibles",
+                "infoFiltered": "(filtrado de _MAX_ total registros)",
+                "search": "Buscar:",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            }
+        });
+    });
+</script>
+@endsection
 @endsection

@@ -1,72 +1,81 @@
 @extends('adminlte::page')
 
-@section('title', 'Configuracion de horario')
+@section('title', 'Configuración de Horario')
 
 @section('content')
-<div class="container">
+<div class="container mx-auto p-4">
     @include('includes.message')
-    <div class="card">
-        <div class="card-header">{{ __('Configuración de horario') }}</div>
-        <div class="card-body">
+    <div class="card shadow-lg rounded-lg overflow-hidden">
+        <div class="card-header bg-white text-black text-center py-4">
+            <h2 class="text-lg font-semibold">{{ __('Configuración de Horario') }}</h2>
+        </div>
+        <div class="card-body p-6 bg-gray-100">
             <!-- Formulario para editar el horario -->
-            <form action="{{ route('horarios_laborales.update', $horarios->id) }}" method="POST">
+            <form id="horarioForm" action="{{ route('horarios_laborales.update', $horarios->id) }}" method="POST">
                 @csrf
                 @method('PUT')
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label for="user_id" class="block text-sm font-medium text-gray-700">{{ __('Usuario') }}</label>
+                        <input id="user_id" type="text" class="form-control mt-1 block w-full" value="{{ $horarios->user->name . ' ' . $horarios->user->apellido_p }}" readonly>
+                    </div>
 
-                <div class="row mb-3">
-                    <label for="user_name" class="col-md-4 col-form-label text-md-end">{{ __('Usuario') }}</label>
-                    <div class="col-md-6">
-                        <input type="text" id="user_name" name="user_name"
-                            value="{{ $horarios->user->name . ' ' . $horarios->user->apellido_p }}"
-                            class="form-control @error('user_name') is-invalid @enderror" readonly />
-                        @error('user_name')
+                    <div>
+                        <label for="start_date" class="block text-sm font-medium text-gray-700">{{ __('Fecha de Inicio') }}</label>
+                        <input type="text" id="start_date" class="form-control mt-1 block w-full" value="{{ \Carbon\Carbon::parse($horarios->start_datetime)->format('Y-m-d') }}" readonly>
+                        <label for="start_time" class="block text-sm font-medium text-gray-700">{{ __('Hora de Inicio') }}</label>
+                        <input type="time" id="start_time" name="start_time" value="{{ \Carbon\Carbon::parse($horarios->start_datetime)->format('H:i') }}" class="form-control mt-1 block w-full @error('start_time') is-invalid @enderror" {{ isset($modo) && $modo === 'ver' ? 'disabled' : '' }} required />
+                        @error('start_time')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                        <input type="hidden" id="start_datetime" name="start_datetime">
+                    </div>
+
+                    <div>
+                        <label for="end_date" class="block text-sm font-medium text-gray-700">{{ __('Fecha de Término') }}</label>
+                        <input type="text" id="end_date" class="form-control mt-1 block w-full" value="{{ \Carbon\Carbon::parse($horarios->end_datetime)->format('Y-m-d') }}" readonly>
+                        <label for="end_time" class="block text-sm font-medium text-gray-700">{{ __('Hora de Término') }}</label>
+                        <input type="time" id="end_time" name="end_time" value="{{ \Carbon\Carbon::parse($horarios->end_datetime)->format('H:i') }}" class="form-control mt-1 block w-full @error('end_time') is-invalid @enderror" {{ isset($modo) && $modo === 'ver' ? 'disabled' : '' }} required />
+                        @error('end_time')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                        <input type="hidden" id="end_datetime" name="end_datetime">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label for="notes" class="block text-sm font-medium text-gray-700">{{ __('Notas Adicionales') }}</label>
+                        <textarea name="notes" id="notes" class="form-control mt-1 block w-full @error('notes') is-invalid @enderror" {{ isset($modo) && $modo === 'ver' ? 'disabled' : '' }}>{{ old('notes', $horarios->notes) }}</textarea>
+                        @error('notes')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                         @enderror
                     </div>
-                </div>
 
-                <div class="row mb-3">
-                    <label for="start_datetime"
-                        class="col-md-4 col-form-label text-md-end">{{ __('Hora de Inicio') }}</label>
-                    <div class="col-md-6">
-                        <input type="datetime-local" id='start_datetime' name="start_datetime"
-                            value="{{$horarios->start_datetime}}"
-                            class="form-control @error('start_datetime') is-invalid @enderror"
-                            {{ isset($modo) && $modo === 'ver' ? 'disabled' : '' }} required />
-                        @error('start_datetime')
+                    <div>
+                        <label for="schedule_type" class="block text-sm font-medium text-gray-700">{{ __('Tipo de Horario') }}</label>
+                        <select id="schedule_type" name="schedule_type" class="form-control mt-1 block w-full @error('schedule_type') is-invalid @enderror" {{ isset($modo) && $modo === 'ver' ? 'disabled' : '' }} required>
+                            <option value="Normal" {{ $horarios->schedule_type === 'Normal' ? 'selected' : '' }}>Normal</option>
+                            <option value="Extra" {{ $horarios->schedule_type === 'Extra' ? 'selected' : '' }}>Extra</option>
+                        </select>
+                        @error('schedule_type')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                         @enderror
                     </div>
-                </div>
 
-                <div class="row mb-3">
-                    <label for="end_datetime"
-                        class="col-md-4 col-form-label text-md-end">{{ __('Hora de término') }}</label>
-                    <div class="col-md-6">
-                        <input type="datetime-local" name="end_datetime" id="end_datetime"
-                            value="{{ $horarios->end_datetime }}"
-                            class="form-control @error('end_datetime') is-invalid @enderror"
-                            {{ isset($modo) && $modo === 'ver' ? 'disabled' : '' }} required />
-                        @error('end_datetime')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="estado" class="col-md-4 col-form-label text-md-end">{{ __('Estado') }}</label>
-                    <div class="col-md-6">
-                        <select name="estado" id="estado"
-                            class="form-control @error('estado') is-invalid @enderror" {{ isset($modo) && $modo === 'ver' ? 'disabled' : '' }}>
-                            <option value="Activo" {{ old('estado') == 'Activo' ? 'selected' : '' }}>Activo</option>
-                            <option value="Inactivo" {{ old('estado') == 'Inactivo' ? 'selected' : '' }}>Inactivo
-                            </option>
+                    <div>
+                        <label for="estado" class="block text-sm font-medium text-gray-700">{{ __('Estado') }}</label>
+                        <select id="estado" name="estado" class="form-control mt-1 block w-full @error('estado') is-invalid @enderror" {{ isset($modo) && $modo === 'ver' ? 'disabled' : '' }} required>
+                            <option value="Activo" {{ (old('estado', $horarios->estado) == 'Activo') ? 'selected' : '' }}>Activo</option>
+                            <option value="Inactivo" {{ (old('estado', $horarios->estado) == 'Inactivo') ? 'selected' : '' }}>Inactivo</option>
                         </select>
                         @error('estado')
                         <span class="invalid-feedback" role="alert">
@@ -76,94 +85,69 @@
                     </div>
                 </div>
 
-                <div class="row mb-3">
-                    <label for="notes"
-                        class="col-md-4 col-form-label text-md-end">{{ __('Notas Adicionales') }}</label>
-                    <div class="col-md-6">
-                        <textarea name="notes" id="notes" class="form-control @error('notes') is-invalid @enderror"
-                            {{ isset($modo) && $modo === 'ver' ? 'disabled' : '' }}>{{ old('notes') }}</textarea>
-                        @error('notes')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="schedule_type"
-                        class="col-md-4 col-form-label text-md-end">{{ __('Tipo de Horario') }}</label>
-                    <div class="col-md-6">
-                        <select id="schedule_type" class="form-control" name="schedule_type"
-                            class="form-select @error('schedule_type') is-invalid @enderror"
-                            {{ isset($modo) && $modo === 'ver' ? 'disabled' : '' }} required>
-                            <option value="Normal" {{ old('schedule_type') == 'Normal' ? 'selected' : '' }}>Normal
-                            </option>
-                            <option value="Extra" {{ old('schedule_type') == 'Extra' ? 'selected' : '' }}>Extra
-                            </option>
-                            <option value="Vacaciones" {{ old('schedule_type') == 'Vacaciones' ? 'selected' : '' }}>
-                                Vacaciones</option>
-                        </select>
-                        @error('schedule_type')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                </div>
-
                 <!-- Botón para enviar el formulario -->
                 @if (isset($modo) && $modo !== 'ver')
-                <div class="row mb-0">
-                    <div class="col-md-6 offset-md-4">
-                        <button type="submit" class="btn btn-primary">{{ __('Actualizar Horario') }}</button>
-                    </div>
+                <div class="flex justify-center">
+                    <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded-md shadow-sm hover:bg-blue-600">{{ __('Actualizar Horario') }}</button>
                 </div>
                 @endif
             </form>
 
             <!-- Botones para cambiar entre modos -->
-            <div class="d-flex justify-content-between mt-3">
-                <!-- Enlace para volver a la lista (a la izquierda) -->
-                <a href="{{ route('horarios_laborales.index') }}" class="btn btn-secondary">{{ __('Volver a la lista') }}</a>
+            <div class="flex justify-between mt-4">
+                <!-- Enlace para volver a la lista -->
+                <a href="{{ route('horarios_laborales.index') }}" class="bg-gray-500 text-white py-2 px-4 rounded-md shadow-sm hover:bg-gray-600">{{ __('Volver a la lista') }}</a>
 
-                <div class="d-flex">
+                <div class="flex space-x-2">
+                    @if(Auth::check() && Auth::user()->isAdmin())
                     @if (isset($modo) && $modo === 'ver')
-                    <a href="{{ route('horarios_laborales.edit', ['id' => $horarios->id, 'modo' => 'editar']) }}"
-                        class="btn btn-warning ml-2">Editar</a>
+                    <a href="{{ route('horarios_laborales.edit', ['id' => $horarios->id, 'modo' => 'editar']) }}" class="bg-yellow-500 text-white py-2 px-4 rounded-md shadow-sm hover:bg-yellow-600">Editar</a>
                     @else
-                    <a href="{{ route('horarios_laborales.edit', ['id' => $horarios->id, 'modo' => 'ver']) }}"
-                        class="btn btn-secondary ml-2">Ver</a>
+                    <a href="{{ route('horarios_laborales.edit', ['id' => $horarios->id, 'modo' => 'ver']) }}" class="bg-gray-500 text-white py-2 px-4 rounded-md shadow-sm hover:bg-gray-600">Ver</a>
+                    @endif
                     @endif
                 </div>
             </div>
-
         </div>
-        <script>
-            (function() {
-                document.getElementById('start_datetime').addEventListener('change', function() {
-                    // Asignar el mismo valor de start_datetime a end_datetime
-                    document.getElementById('end_datetime').value = this.value;
-                });
+    </div>
+</div>
 
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Obtener la fecha y hora actuales
-                    const now = new Date();
+@push('css')
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+@endpush
 
-                    // Formatear la fecha en el formato adecuado para datetime-local
-                    const year = now.getFullYear();
-                    const month = String(now.getMonth() + 1).padStart(2, '0'); // Mes empieza desde 0
-                    const day = String(now.getDate()).padStart(2, '0');
-                    const hours = String(now.getHours()).padStart(2, '0');
-                    const minutes = String(now.getMinutes()).padStart(2, '0');
+@push('js')
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById('horarioForm');
+        form.addEventListener('submit', function() {
+            const startDate = document.getElementById('start_date').value;
+            const startTime = document.getElementById('start_time').value;
+            const endDate = document.getElementById('end_date').value;
+            const endTime = document.getElementById('end_time').value;
 
-                    // Crear una cadena en el formato YYYY-MM-DDTHH:MM
-                    const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+            document.getElementById('start_datetime').value = `${startDate} ${startTime}`;
+            document.getElementById('end_datetime').value = `${endDate} ${endTime}`;
+        });
 
-                    // Asignar el valor mínimo al campo
-                    document.getElementById('start_datetime').setAttribute('min', minDateTime);
-                    document.getElementById('end_datetime').setAttribute('min', minDateTime);
-                });
-            })();
-        </script>
-        @endsection
+        flatpickr("#start_time", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            time_24hr: true
+        });
+
+        flatpickr("#end_time", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            time_24hr: true
+        });
+    });
+</script>
+@endpush
+
+@endsection

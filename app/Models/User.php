@@ -23,12 +23,16 @@ class User extends Authenticatable
         'name',
         'apellido_m',
         'apellido_p',
+        'fecha_nacimiento',
         'sexo',
         'email',
+        'region',
+        'comuna',
         'phone',
         'direccion',
         'password',
         'image',
+        'estado',
     ];
 
     /**
@@ -71,5 +75,20 @@ class User extends Authenticatable
     public function adminlte_profile_url()
     {
         return route('config');
+    }
+    /**
+     * Check if the user has the role of Admin.
+     *
+     * @return bool
+     */
+    public function isAdmin()
+    {
+        return $this->role === 'Admin';
+    }
+
+    //relacion con horarios laborales
+    public function horarios_laborales()
+    {
+        return $this->hasMany(Horarios_laborales::class, 'user_id');
     }
 }
